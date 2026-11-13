@@ -107,6 +107,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
 
+                // Administrative endpoints require administrative authority
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority("SELLER_MANAGE", "ROLE_ADMIN")
+
                 // All other application requests require authentication
                 .anyRequest().authenticated()
             )

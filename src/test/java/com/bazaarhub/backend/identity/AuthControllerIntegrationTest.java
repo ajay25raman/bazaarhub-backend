@@ -43,8 +43,24 @@ class AuthControllerIntegrationTest {
     @Autowired
     private com.bazaarhub.backend.identity.infrastructure.persistence.repository.SpringDataRoleRepository roleRepository;
 
+    @Autowired(required = false)
+    private com.bazaarhub.backend.seller.infrastructure.persistence.repository.SpringDataSellerBankAccountRepository bankAccountRepository;
+
+    @Autowired(required = false)
+    private com.bazaarhub.backend.seller.infrastructure.persistence.repository.SpringDataSellerDocumentRepository documentRepository;
+
+    @Autowired(required = false)
+    private com.bazaarhub.backend.seller.infrastructure.persistence.repository.SpringDataStoreRepository storeRepository;
+
+    @Autowired(required = false)
+    private com.bazaarhub.backend.seller.infrastructure.persistence.repository.SpringDataSellerRepository sellerRepository;
+
     @BeforeEach
     void cleanUp() {
+        if (bankAccountRepository != null) bankAccountRepository.deleteAll();
+        if (documentRepository != null) documentRepository.deleteAll();
+        if (storeRepository != null) storeRepository.deleteAll();
+        if (sellerRepository != null) sellerRepository.deleteAll();
         userDeviceRepository.deleteAll();
         userRepository.deleteAll();
         if (roleRepository.findByName("ROLE_CUSTOMER").isEmpty()) {
