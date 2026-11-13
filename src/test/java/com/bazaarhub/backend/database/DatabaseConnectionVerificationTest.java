@@ -119,6 +119,16 @@ class DatabaseConnectionVerificationTest {
             log.info("[LIVE TEST] Inspected schema. Detected table count: {}", tables.size());
             log.info("[LIVE TEST] Table list: {}", tables);
 
+            // Read-only inspection of existing roles
+            List<String> existingRoles = new ArrayList<>();
+            try (Statement statement = connection.createStatement();
+                 ResultSet rs = statement.executeQuery("SELECT name FROM roles")) {
+                while (rs.next()) {
+                    existingRoles.add(rs.getString("name"));
+                }
+            }
+            log.info("[LIVE TEST] Existing roles in 'roles' table: {}", existingRoles);
+
         } catch (Exception ex) {
             log.error("[LIVE TEST ERROR] MariaDB connectivity test failed: {}", ex.getMessage());
             Throwable cause = ex;
