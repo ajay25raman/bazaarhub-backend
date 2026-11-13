@@ -39,6 +39,11 @@ The BazaarHub platform ecosystem connects four specialized applications to a cen
 - **Code Generation**: Project Lombok
 - **Observability**: Spring Boot Actuator (`health`, `info`, `metrics`)
 - **Testing**: JUnit 5, Mockito
+- **Containerization**: Docker (Multi-stage build, non-root execution)
+- **Orchestration**: Docker Compose (Staging & Production isolation)
+- **Image Registry**: GitHub Container Registry (GHCR: `ghcr.io/bazaarhub/bazaarhub-backend`)
+- **CI/CD Platform**: GitHub Actions (Verify, Build & Push, Staging & Production Deploy)
+- **Hosting Target**: Hostinger Linux VPS (Ubuntu 22.04 / 24.04 LTS)
 - **Database Status**: Phase 1 Foundation operates database-free (in-memory execution).
 
 ---
@@ -134,11 +139,22 @@ Rather than adopting distributed microservices prematurely, BazaarHub deploys as
 
 ```
 bazaarhub-backend/
-├── pom.xml
-├── mvnw
-├── mvnw.cmd
-├── HELP.md
-├── README.md
+├── .github/
+│   └── workflows/
+│       ├── backend-ci.yml             # PR and main branch CI validation
+│       ├── build-and-push.yml         # Container build and GHCR push
+│       ├── deploy-staging.yml         # Automated Hostinger Staging deploy
+│       └── deploy-production.yml      # Release tag Hostinger Production deploy
+├── deployment/
+│   ├── compose/
+│   │   ├── docker-compose.staging.yml     # Staging Compose configuration (Port 8081)
+│   │   └── docker-compose.production.yml  # Production Compose configuration (Port 8080)
+│   ├── docker/
+│   │   ├── Dockerfile                 # Multi-stage Java 21 Temurin build
+│   │   └── .dockerignore              # Build context exclusions
+│   └── scripts/
+│       ├── health-check.sh            # Configurable smoke & health test probe
+│       └── rollback.sh                # Instant zero-downtime rollback script
 ├── docs/
 │   ├── README.md
 │   ├── api/
@@ -159,7 +175,12 @@ bazaarhub-backend/
 │   ├── database/
 │   │   └── README.md
 │   ├── deployment/
-│   │   └── README.md
+│   │   ├── README.md
+│   │   ├── ci-cd-pipeline.md          # CI/CD topography and least-privilege matrix
+│   │   ├── staging-deployment.md      # Staging deployment guide
+│   │   ├── production-deployment.md   # Production release guide
+│   │   ├── rollback-strategy.md       # State tracking and rollback mechanics
+│   │   └── server-setup.md            # Hostinger VPS hardening & reverse proxy setup
 │   ├── interview-preparation/
 │   │   ├── README.md
 │   │   └── phase-1-architecture-explanation.md
@@ -169,6 +190,11 @@ bazaarhub-backend/
 │   │   └── README.md
 │   └── testing/
 │       └── README.md
+├── pom.xml
+├── mvnw
+├── mvnw.cmd
+├── HELP.md
+├── README.md
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -203,41 +229,13 @@ bazaarhub-backend/
 │   │   │               │           │   └── HealthController.java
 │   │   │               │           └── response/
 │   │   │               │               └── ApiResponse.java
-│   │   │               ├── [identity | customer | seller | store | catalog | ... (20 modules)]/
-│   │   │               │   ├── README.md
-│   │   │               │   ├── package-info.java
-│   │   │               │   ├── domain/
-│   │   │               │   │   ├── package-info.java
-│   │   │               │   │   ├── event/
-│   │   │               │   │   ├── exception/
-│   │   │               │   │   ├── model/
-│   │   │               │   │   ├── repository/
-│   │   │               │   │   ├── service/
-│   │   │               │   │   └── valueobject/
-│   │   │               │   ├── application/
-│   │   │               │   │   ├── package-info.java
-│   │   │               │   │   ├── command/
-│   │   │               │   │   ├── dto/
-│   │   │               │   │   ├── mapper/
-│   │   │               │   │   ├── port/
-│   │   │               │   │   │   ├── input/
-│   │   │               │   │   │   └── output/
-│   │   │               │   │   ├── query/
-│   │   │               │   │   └── usecase/
-│   │   │               │   ├── infrastructure/
-│   │   │               │   │   ├── package-info.java
-│   │   │               │   │   ├── adapter/
-│   │   │               │   │   ├── config/
-│   │   │               │   │   └── persistence/
-│   │   │               │   │       ├── entity/
-│   │   │               │   │       ├── mapper/
-│   │   │               │   │       └── repository/
-│   │   │               │   └── presentation/
-│   │   │               │       └── rest/
-│   │   │               │           ├── package-info.java
-│   │   │               │           ├── controller/
-│   │   │               │           ├── request/
-│   │   │               │           └── response/
+│   │   │               └── [identity | customer | seller | store | catalog | ... (20 modules)]/
+│   │   │                   ├── README.md
+│   │   │                   ├── package-info.java
+│   │   │                   ├── domain/
+│   │   │                   ├── application/
+│   │   │                   ├── infrastructure/
+│   │   │                   └── presentation/
 │   │   └── resources/
 │   │       ├── application.properties
 │   │       ├── application-dev.properties
@@ -251,17 +249,16 @@ bazaarhub-backend/
 │                   └── backend/
 │                       ├── BazaarhubBackendApplicationTests.java
 │                       ├── shared/
-│                       │   └── package-info.java
-│                       └── [identity | customer | seller | ... (20 modules)]/
-│                           └── package-info.java
+│                       └── [20 module test packages]/
 ```
 
 ---
 
 ## 10. Prerequisites
-- **Java Development Kit (JDK)**: Java 21 (Amazon Corretto, Eclipse Temurin, or Oracle JDK 21).
+- **Java Development Kit (JDK)**: Java 21 (Eclipse Temurin, Amazon Corretto, or Oracle JDK 21).
 - **Environment**: macOS, Linux, or Windows (WSL recommended).
 - **Build Tool**: Maven 3.9+ (bundled via `./mvnw`).
+- **Container Engine**: Docker 24.0+ and Docker Compose V2 (for containerized execution).
 
 ---
 
@@ -283,24 +280,24 @@ bazaarhub-backend/
 ---
 
 ## 12. How to Run the Backend
+
+### Option A: Local Maven Run
 Launch the application locally using the Spring Boot Maven plugin:
 ```bash
 ./mvnw spring-boot:run
 ```
-The application will boot on `http://localhost:8080`.
+The application boots on `http://localhost:8080`.
 
 Verify server health:
 ```bash
 curl http://localhost:8080/api/v1/health
 ```
-Expected output:
-```json
-{
-  "success": true,
-  "application": "BazaarHub Backend",
-  "status": "UP",
-  "database": "Not configured"
-}
+
+### Option B: Local Docker Build & Run
+Build the container image using the multi-stage Dockerfile:
+```bash
+docker build -t bazaarhub-backend:local -f deployment/docker/Dockerfile .
+docker run -p 8080:8080 bazaarhub-backend:local
 ```
 
 ---
@@ -308,8 +305,8 @@ Expected output:
 ## 13. How to Run Tests
 Execute the automated test suite via the Maven wrapper:
 ```bash
-# Run all tests
-./mvnw test
+# Run all unit and integration tests
+./mvnw clean verify
 
 # Run a specific test class
 ./mvnw test -Dtest=BazaarhubBackendApplicationTests
@@ -334,6 +331,7 @@ To activate a specific profile:
 - **Framework**: Spring Security 6.x.
 - **Model**: Stateless token-based authentication (JWT) with Role-Based Access Control (`ROLE_CUSTOMER`, `ROLE_SELLER`, `ROLE_DELIVERY`, `ROLE_ADMIN`).
 - **Validation**: Strict server-side Jakarta Bean Validation on all incoming presentation models.
+- **Container Security**: Non-root user `bazaarhub` (UID `10001`), read-only root filesystems where appropriate, and strict network isolation via internal loopback bindings.
 - **Phase 1 State**: Standard Spring Security defaults active on the classpath.
 
 ---
@@ -353,17 +351,20 @@ To activate a specific profile:
 
 ---
 
-## 18. Git Workflow
-- **Branching Model**: GitFlow / Trunk-Based Development with feature branches (`feature/catalog-categories`, `fix/cart-item-merge`).
-- **Safety Rules**:
-  - Never execute destructive git commands (`force push`, `reset --hard` on shared branches).
-  - All changes enter via peer-reviewed Pull Requests.
-  - CI must pass clean compile and test gates before merging.
+## 18. CI/CD & Deployment Architecture
+BazaarHub implements an enterprise GitHub Actions CI/CD pipeline deploying to Hostinger VPS:
+- **Continuous Integration**: [`.github/workflows/backend-ci.yml`](file:///Users/ajaykumar/bazaarhub-backend/.github/workflows/backend-ci.yml) executes on every PR and commit to `main`, validating Java 21 compilation and test verification.
+- **Container Packaging**: [`.github/workflows/build-and-push.yml`](file:///Users/ajaykumar/bazaarhub-backend/.github/workflows/build-and-push.yml) builds and pushes immutable images to GitHub Container Registry (GHCR).
+- **Staging Deployment**: [`.github/workflows/deploy-staging.yml`](file:///Users/ajaykumar/bazaarhub-backend/.github/workflows/deploy-staging.yml) deploys verified `main` builds to `/opt/bazaarhub/staging/` on port `8081`.
+- **Production Deployment**: [`.github/workflows/deploy-production.yml`](file:///Users/ajaykumar/bazaarhub-backend/.github/workflows/deploy-production.yml) deploys immutable `v*` release tags to `/opt/bazaarhub/production/` on port `8080`.
+- **Reverse Proxy**: Nginx or Caddy provides TLS termination and routes external HTTPS traffic to local loopback application ports.
+- **Detailed Guides**: See [docs/deployment/](file:///Users/ajaykumar/bazaarhub-backend/docs/deployment/README.md).
 
 ---
 
 ## 19. Development Roadmap
 - [x] **Phase 1: Architecture Foundation**: Clean Architecture folder hierarchy, 20 business modules, shared foundation, bootstrap root, documentation, ADRs, and database-free verification.
+- [x] **Phase 1.5: Enterprise CI/CD & Deployment**: Multi-stage Dockerfile, Docker Compose for Staging/Production, GHCR integration, rollback automation, health probe scripts, and Hostinger VPS deployment workflows.
 - [ ] **Phase 2: Persistence & Migrations**: MariaDB / PostgreSQL datasource configuration, Flyway migrations, JPA entity mappings, and Redis caching.
 - [ ] **Phase 3: Identity & Access Management**: User registration, Argon2id password hashing, JWT token issuance, refresh rotation, and RBAC filters.
 - [ ] **Phase 4: Core Commerce Engine**: Catalog products, inventory reservation locks, active cart management, and multi-vendor checkout saga.

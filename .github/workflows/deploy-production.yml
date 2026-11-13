@@ -1,0 +1,380 @@
+name: Deploy Production
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to deploy to Production (e.g., v1.0.0, v1.0.0-rc.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+  actions: read
+
+concurrency:
+  group: deployment-production
+  cancel-in-progress: false
+
+jobs:
+  validate-and-resolve:
+    name: Validate Release, Verify CI & Resolve Image Digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      release_tag: ${{ steps.resolve.outputs.release_tag }}
+      image_digest: ${{ steps.resolve.outputs.image_digest }}
+      image_ref: ${{ steps.resolve.outputs.image_ref }}
+      commit_sha: ${{ steps.resolve.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Validate Release Tag, CI Success & Resolve Immutable Digest
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.release_tag }}
+          REF_NAME: ${{ github.ref_name }}
+          IMAGE_REPO: "ghcr.io/${{ github.repository }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # 1. Resolve release tag safely from environment variables
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            TARGET_TAG="${INPUT_TAG}"
+          else
+            TARGET_TAG="${REF_NAME}"
+          fi
+
+          echo "Evaluating target production release tag: ${TARGET_TAG}"
+
+          # 2. Strict semantic version validation using anchored regex
+          # Supports stable (vX.Y.Z) and explicit prereleases (vX.Y.Z-rc.N, vX.Y.Z-beta.N, vX.Y.Z-alpha.N)
+          SEMVER_PATTERN='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)(\.[1-9][0-9]*)?)?$'
+          if [[ ! "${TARGET_TAG}" =~ ${SEMVER_PATTERN} ]]; then
+            echo "ERROR: Tag '${TARGET_TAG}' does not satisfy semantic versioning format." >&2
+            echo "Allowed formats: vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-(alpha|beta|rc)[.N]" >&2
+            exit 1
+          fi
+
+          # 3. Verify git tag exists in repository and resolve exact commit SHA
+          if ! git rev-parse --verify "refs/tags/${TARGET_TAG}" >/dev/null 2>&1; then
+            echo "ERROR: Release tag 'refs/tags/${TARGET_TAG}' was not found in the git repository." >&2
+            exit 1
+          fi
+          TAG_COMMIT=$(git rev-list -n 1 "refs/tags/${TARGET_TAG}")
+          echo "Verified git tag '${TARGET_TAG}' points to commit: ${TAG_COMMIT}"
+
+          # 4. Enforce successful CI & build-and-push workflow execution for this exact tag and commit
+          echo "Searching for Build & Push Image workflow execution for tag '${TARGET_TAG}' and commit '${TAG_COMMIT}'..."
+          MAX_POLL=40 # 40 * 15s = 10 minutes maximum wait for in-flight tag build
+          POLL_COUNT=0
+          CI_VERIFIED=false
+          BUILD_RUN_ID=""
+
+          while [[ ${POLL_COUNT} -lt ${MAX_POLL} ]]; do
+            # Fetch workflow runs matching the commit SHA
+            RUNS_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${TAG_COMMIT}" 2>/dev/null || echo '{"workflow_runs":[]}')
+
+            # Filter strictly for runs belonging to build-and-push.yml, matching BOTH commit SHA and release tag
+            # Do not select an unrelated workflow run (e.g. main branch run) merely because its commit SHA matches
+            BUILD_RUN=$(echo "${RUNS_JSON}" | jq --arg tag "${TARGET_TAG}" --arg commit "${TAG_COMMIT}" -r '
+              [.workflow_runs[] | select(
+                (.path == ".github/workflows/build-and-push.yml" or .name == "Build & Push Image") and
+                .head_sha == $commit and
+                (.head_branch == $tag or .head_branch == ("refs/tags/" + $tag))
+              )] | first // empty
+            ')
+
+            if [[ -n "${BUILD_RUN}" && "${BUILD_RUN}" != "null" ]]; then
+              RUN_ID=$(echo "${BUILD_RUN}" | jq -r '.id')
+              RUN_STATUS=$(echo "${BUILD_RUN}" | jq -r '.status')
+              RUN_CONCLUSION=$(echo "${BUILD_RUN}" | jq -r '.conclusion')
+
+              if [[ "${RUN_STATUS}" == "completed" ]]; then
+                if [[ "${RUN_CONCLUSION}" != "success" ]]; then
+                  echo "ERROR: Build & Push Image workflow run #${RUN_ID} for tag '${TARGET_TAG}' finished with conclusion '${RUN_CONCLUSION}' (expected 'success')." >&2
+                  exit 1
+                fi
+
+                # Confirm the build workflow jobs succeeded, particularly the 'verify' job
+                echo "Verifying individual job conclusions for workflow run #${RUN_ID}..."
+                JOBS_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs" 2>/dev/null || echo '{"jobs":[]}')
+
+                VERIFY_JOB=$(echo "${JOBS_JSON}" | jq -r '[.jobs[] | select(.name == "Verify Before Image Build" or (.name | test("verify"; "i")))] | first // empty')
+                if [[ -z "${VERIFY_JOB}" || "${VERIFY_JOB}" == "null" ]]; then
+                  echo "ERROR: Could not find 'verify' job in build run #${RUN_ID}." >&2
+                  exit 1
+                fi
+                VERIFY_STATUS=$(echo "${VERIFY_JOB}" | jq -r '.status')
+                VERIFY_CONCLUSION=$(echo "${VERIFY_JOB}" | jq -r '.conclusion')
+
+                if [[ "${VERIFY_STATUS}" != "completed" || "${VERIFY_CONCLUSION}" != "success" ]]; then
+                  echo "ERROR: Verify job in build run #${RUN_ID} has status '${VERIFY_STATUS}' and conclusion '${VERIFY_CONCLUSION}' (must be completed/success)." >&2
+                  exit 1
+                fi
+
+                BUILD_JOB=$(echo "${JOBS_JSON}" | jq -r '[.jobs[] | select(.name == "Build & Push to GHCR" or (.name | test("build.*push"; "i")))] | first // empty')
+                if [[ -z "${BUILD_JOB}" || "${BUILD_JOB}" == "null" ]]; then
+                  echo "ERROR: Could not find 'build-and-push' job in build run #${RUN_ID}." >&2
+                  exit 1
+                fi
+                BUILD_STATUS=$(echo "${BUILD_JOB}" | jq -r '.status')
+                BUILD_CONCLUSION=$(echo "${BUILD_JOB}" | jq -r '.conclusion')
+
+                if [[ "${BUILD_STATUS}" != "completed" || "${BUILD_CONCLUSION}" != "success" ]]; then
+                  echo "ERROR: Build & Push job in build run #${RUN_ID} has status '${BUILD_STATUS}' and conclusion '${BUILD_CONCLUSION}'." >&2
+                  exit 1
+                fi
+
+                echo "Verified: Build workflow run #${RUN_ID} ('verify' and 'build-and-push') completed successfully for tag '${TARGET_TAG}' and commit '${TAG_COMMIT}'."
+                BUILD_RUN_ID="${RUN_ID}"
+                CI_VERIFIED=true
+                break
+              else
+                echo "Build & Push Image workflow run #${RUN_ID} is in progress ('${RUN_STATUS}'). Polling (${POLL_COUNT}/${MAX_POLL})..."
+              fi
+            else
+              echo "Waiting for Build & Push Image workflow run to register for tag '${TARGET_TAG}' (${POLL_COUNT}/${MAX_POLL})..."
+            fi
+
+            POLL_COUNT=$((POLL_COUNT + 1))
+            sleep 15
+          done
+
+          if [[ "${CI_VERIFIED}" != "true" || -z "${BUILD_RUN_ID}" ]]; then
+            echo "ERROR: No successful Build & Push Image workflow run verified for tag '${TARGET_TAG}' and commit '${TAG_COMMIT}' within timeout." >&2
+            exit 1
+          fi
+
+          # 5. Resolve immutable image digest
+          # Prefer authoritative digest output from the successful build-and-push job
+          TARGET_IMAGE="${IMAGE_REPO}:${TARGET_TAG}"
+          MANIFEST_DIGEST=""
+
+          echo "Attempting to retrieve authoritative digest output from build-and-push run #${BUILD_RUN_ID}..."
+          JOB_LOG_DIGEST=$(gh run view "${BUILD_RUN_ID}" --log 2>/dev/null | grep -E 'Digest:[[:space:]]+sha256:[a-f0-9]{64}' | tail -n 1 | awk '{print $NF}' || true)
+
+          if [[ "${JOB_LOG_DIGEST}" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+            MANIFEST_DIGEST="${JOB_LOG_DIGEST}"
+            echo "Found authoritative image digest from build job log: ${MANIFEST_DIGEST}"
+          else
+            echo "Authoritative digest not found in job logs. Querying registry directly..."
+            echo "${GH_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+            
+            # Use registry-aware method that inspects raw manifest to calculate canonical digest
+            RAW_MANIFEST=$(docker buildx imagetools inspect --raw "${TARGET_IMAGE}" 2>/dev/null || true)
+            if [[ -z "${RAW_MANIFEST}" ]]; then
+              echo "ERROR: Failed to retrieve canonical registry manifest for '${TARGET_IMAGE}' from GHCR." >&2
+              docker logout ghcr.io || true
+              exit 1
+            fi
+            MANIFEST_DIGEST="sha256:$(printf '%s' "${RAW_MANIFEST}" | sha256sum | awk '{print $1}')"
+            echo "Resolved canonical manifest digest from GHCR: ${MANIFEST_DIGEST}"
+          fi
+
+          if [[ ! "${MANIFEST_DIGEST}" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+            echo "ERROR: Failed to obtain valid immutable manifest digest: '${MANIFEST_DIGEST}'." >&2
+            exit 1
+          fi
+
+          PINNED_IMAGE_REF="${IMAGE_REPO}@${MANIFEST_DIGEST}"
+
+          # 6. Pull strictly by immutable digest
+          echo "Pulling container image strictly by immutable digest: ${PINNED_IMAGE_REF}"
+          echo "${GH_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+          if ! docker pull "${PINNED_IMAGE_REF}"; then
+            echo "ERROR: Failed to pull image by digest '${PINNED_IMAGE_REF}'." >&2
+            docker logout ghcr.io || true
+            exit 1
+          fi
+
+          # 7. Inspect image strictly by digest (not by mutable tag)
+          IMAGE_REVISION=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "${PINNED_IMAGE_REF}" 2>/dev/null || true)
+          docker logout ghcr.io || true
+
+          if [[ -z "${IMAGE_REVISION}" || "${IMAGE_REVISION}" == "<no value>" ]]; then
+            echo "ERROR: Required label 'org.opencontainers.image.revision' is missing on ${PINNED_IMAGE_REF}." >&2
+            exit 1
+          fi
+
+          if [[ "${IMAGE_REVISION}" != "${TAG_COMMIT}" ]]; then
+            echo "SECURITY ERROR: Image revision label (${IMAGE_REVISION}) does not match expected Git tag commit (${TAG_COMMIT})." >&2
+            echo "Rejecting mismatched or stale image." >&2
+            exit 1
+          fi
+
+          echo "Verified: Image revision strictly matches git tag commit ${TAG_COMMIT}."
+          echo "Deployment will proceed using immutable digest: ${PINNED_IMAGE_REF}"
+
+          echo "release_tag=${TARGET_TAG}" >> "$GITHUB_OUTPUT"
+          echo "image_digest=${MANIFEST_DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "image_ref=${PINNED_IMAGE_REF}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=${TAG_COMMIT}" >> "$GITHUB_OUTPUT"
+
+  deploy-production:
+    name: Deploy Release to Hostinger VPS
+    needs: [validate-and-resolve]
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+
+    steps:
+      - name: Validate Dedicated Deployment Credentials
+        env:
+          SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          GHCR_USER: ${{ secrets.GHCR_READ_USER }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${SSH_HOST}" || -z "${SSH_USER}" || -z "${SSH_KEY}" ]]; then
+            echo "ERROR: Required production SSH secrets (PROD_SSH_HOST, PROD_SSH_USER, PROD_SSH_KEY) are missing." >&2
+            exit 1
+          fi
+          if [[ -z "${GHCR_TOKEN}" ]]; then
+            echo "ERROR: Dedicated read-only token 'GHCR_READ_TOKEN' is required for VPS image pulls." >&2
+            echo "Fallback to GITHUB_TOKEN is disabled for security." >&2
+            exit 1
+          fi
+          if [[ -z "${GHCR_USER}" ]]; then
+            echo "ERROR: Dedicated registry username 'GHCR_READ_USER' is not configured." >&2
+            exit 1
+          fi
+          echo "All required deployment secrets verified."
+
+      - name: Checkout Release Source Files
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.validate-and-resolve.outputs.commit_sha }}
+
+      - name: Sync Compose and Operational Scripts
+        uses: appleboy/scp-action@0b59b964344be90786df749712eeab055f2d6582 # v0.1.7
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT || 22 }}
+          source: "deployment/compose/docker-compose.production.yml,deployment/scripts/health-check.sh,deployment/scripts/rollback.sh"
+          target: "/opt/bazaarhub/production"
+          strip_components: 2
+          overwrite: true
+
+      - name: Execute Production Deployment over SSH
+        uses: appleboy/ssh-action@7eaf766715f081548cf0930777e112d7c0f1620a # v1.2.0
+        env:
+          IMAGE_REF: ${{ needs.validate-and-resolve.outputs.image_ref }}
+          RELEASE_TAG: ${{ needs.validate-and-resolve.outputs.release_tag }}
+          COMMIT_SHA: ${{ needs.validate-and-resolve.outputs.commit_sha }}
+          GHCR_USER: ${{ secrets.GHCR_READ_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          PROD_PORT: "8080"
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT || 22 }}
+          envs: IMAGE_REF,RELEASE_TAG,COMMIT_SHA,GHCR_USER,GHCR_TOKEN,PROD_PORT
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="/opt/bazaarhub/production"
+            cd "${DEPLOY_DIR}"
+
+            echo "=========================================="
+            echo "Executing BazaarHub Production Deployment"
+            echo "Release Tag: ${RELEASE_TAG}"
+            echo "Commit SHA:  ${COMMIT_SHA}"
+            echo "Image Digest:${IMAGE_REF}"
+            echo "=========================================="
+
+            # Strict validation: fail if required deployment files are missing
+            for req_file in docker-compose.production.yml health-check.sh rollback.sh; do
+              if [[ ! -f "${req_file}" ]]; then
+                echo "ERROR: Required production deployment file '${DEPLOY_DIR}/${req_file}' is missing." >&2
+                exit 1
+              fi
+            done
+
+            chmod +x health-check.sh rollback.sh
+
+            # Verify environment configuration exists on host
+            if [[ ! -f .env ]]; then
+              echo "ERROR: Production environment file '${DEPLOY_DIR}/.env' is missing." >&2
+              exit 1
+            fi
+
+            # Authenticate to GHCR using dedicated read token
+            printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            unset GHCR_TOKEN
+
+            # Verify and preserve previous image state before replacement
+            if [[ -f .current_image ]]; then
+              PREV_REF=$(cat .current_image | tr -d '\r\n')
+              if [[ -n "${PREV_REF}" ]]; then
+                echo "Verifying local availability of previous image: ${PREV_REF}..."
+                if ! docker image inspect "${PREV_REF}" >/dev/null 2>&1; then
+                  echo "Previous image not in local cache; pulling to ensure rollback safety..."
+                  if ! docker pull "${PREV_REF}" >/dev/null 2>&1; then
+                    echo "ERROR: Previous image '${PREV_REF}' is unavailable locally and cannot be pulled." >&2
+                    echo "Aborting deployment to avoid leaving host without a verified rollback target." >&2
+                    docker logout ghcr.io || true
+                    exit 1
+                  fi
+                fi
+                cp .current_image .previous_image
+                echo "Verified previous healthy image reference: ${PREV_REF}"
+              fi
+            fi
+
+            # Pull immutable image strictly by digest
+            echo "Pulling verified image by digest: ${IMAGE_REF}"
+            docker pull "${IMAGE_REF}"
+
+            # Log out from GHCR immediately after pulling
+            docker logout ghcr.io || true
+
+            # Inspect pulled image by digest to verify revision on host matches target commit
+            HOST_REVISION=$(docker inspect --format='{{index .Config.Labels "org.opencontainers.image.revision"}}' "${IMAGE_REF}" 2>/dev/null || true)
+            if [[ -z "${HOST_REVISION}" || "${HOST_REVISION}" == "<no value>" ]]; then
+              echo "ERROR: Pulled image '${IMAGE_REF}' lacks required revision label ('org.opencontainers.image.revision') on host." >&2
+              exit 1
+            fi
+
+            if [[ "${HOST_REVISION}" != "${COMMIT_SHA}" ]]; then
+              echo "SECURITY ERROR: Host image revision (${HOST_REVISION}) does not match expected Git commit (${COMMIT_SHA})." >&2
+              echo "Rejecting deployment on host due to revision mismatch." >&2
+              exit 1
+            fi
+            echo "Verified on host: image revision matches expected commit ${COMMIT_SHA}."
+
+            # Deploy container via Docker Compose using immutable digest
+            export IMAGE_DEPLOY_REF="${IMAGE_REF}"
+            export PROD_APP_PORT="${PROD_PORT}"
+
+            docker compose -f docker-compose.production.yml up -d --remove-orphans
+
+            # Execute health probe against /actuator/health
+            HEALTH_URL="http://127.0.0.1:${PROD_PORT}/actuator/health"
+            export MAX_ATTEMPTS=15
+            export SLEEP_SECONDS=5
+
+            if ! ./health-check.sh "${HEALTH_URL}"; then
+              echo "CRITICAL: Health check probe failed! Initiating rollback to previous digest..." >&2
+              ./rollback.sh production
+              exit 1
+            fi
+
+            # Store the full immutable digest reference in .current_image
+            echo "${IMAGE_REF}" > .current_image
+            echo "Production deployment of ${RELEASE_TAG} (${IMAGE_REF}) verified successfully."

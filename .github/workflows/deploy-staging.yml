@@ -1,0 +1,122 @@
+name: Deploy Staging
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Image"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Specific image tag to deploy to staging (defaults to 'staging' or commit SHA)"
+        required: false
+        default: "staging"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deployment-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    name: Deploy to Hostinger Staging VPS
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Resolve Image Tag
+        id: resolve-tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.image_tag }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" && -n "${INPUT_TAG}" ]]; then
+            echo "image_tag=${INPUT_TAG}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=sha-${COMMIT_SHA:0:7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Copy Compose and Health Scripts to Staging Server
+        uses: appleboy/scp-action@0b59b964344be90786df749712eeab055f2d6582 # v0.1.7
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          source: "deployment/compose/docker-compose.staging.yml,deployment/scripts/health-check.sh,deployment/scripts/rollback.sh"
+          target: "/opt/bazaarhub/staging"
+          strip_components: 2
+          overwrite: true
+
+      - name: Execute Remote Deployment via SSH
+        uses: appleboy/ssh-action@7eaf766715f081548cf0930777e112d7c0f1620a # v1.2.0
+        env:
+          IMAGE_REPOSITORY: "ghcr.io/${{ github.repository }}"
+          IMAGE_TAG: ${{ steps.resolve-tag.outputs.image_tag }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN || secrets.GHCR_PULL_TOKEN }}
+          STAGING_APP_PORT: "8081"
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          envs: IMAGE_REPOSITORY,IMAGE_TAG,GHCR_USER,GHCR_TOKEN,STAGING_APP_PORT
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="/opt/bazaarhub/staging"
+            cd "${DEPLOY_DIR}"
+
+            echo "=========================================="
+            echo "Starting BazaarHub Staging Deployment"
+            echo "Image: ${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+            echo "=========================================="
+
+            chmod +x health-check.sh rollback.sh || true
+
+            # Securely authenticate using read token
+            printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            unset GHCR_TOKEN
+
+            # Track previous image for rollback before pulling
+            if [[ -f .current_image ]]; then
+              cp .current_image .previous_image
+            fi
+
+            # Pull image and logout immediately
+            docker pull "${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+            docker logout ghcr.io || true
+
+            # Deploy with Docker Compose
+            export IMAGE_NAME="${IMAGE_REPOSITORY}"
+            export IMAGE_TAG="${IMAGE_TAG}"
+            export STAGING_APP_PORT="${STAGING_APP_PORT}"
+
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans
+
+            # Health verification
+            export HEALTH_URL="http://127.0.0.1:${STAGING_APP_PORT}/actuator/health"
+            export MAX_ATTEMPTS=12
+            export SLEEP_SECONDS=5
+
+            if ! ./health-check.sh "${HEALTH_URL}"; then
+              echo "ERROR: Health check failed! Initiating rollback..." >&2
+              ./rollback.sh staging
+              exit 1
+            fi
+
+            echo "${IMAGE_TAG}" > .current_image
+            echo "Deployment to Staging verified successfully."

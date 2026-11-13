@@ -1,0 +1,59 @@
+# ==============================================================================
+# BazaarHub Backend - Staging Environment Docker Compose
+# Project Name: bazaarhub-staging
+# Host Path: /opt/bazaarhub/staging/docker-compose.yml
+# ==============================================================================
+
+name: bazaarhub-staging
+
+services:
+  backend:
+    image: ${IMAGE_DEPLOY_REF:-${IMAGE_NAME:-ghcr.io/bazaarhub/bazaarhub-backend}:${IMAGE_TAG:-staging}}
+    container_name: bazaarhub-staging-backend
+    restart: unless-stopped
+    user: "10001:10001"
+    
+    # Internal port forwarding bound ONLY to localhost (Reverse Proxy routes public traffic)
+    ports:
+      - "127.0.0.1:${STAGING_APP_PORT:-8081}:8080"
+      
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-staging,dev}
+      - SERVER_PORT=8080
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+      - JAVA_OPTS=${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:+ExitOnOutOfMemoryError}
+      
+    # Load environment-specific variables from local VPS file (never committed to Git)
+    env_file:
+      - path: .env
+        required: false
+        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-s", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1536M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        
+    networks:
+      - bazaarhub-staging-net
+
+networks:
+  bazaarhub-staging-net:
+    name: bazaarhub-staging-net
+    driver: bridge

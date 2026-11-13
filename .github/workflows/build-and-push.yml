@@ -1,0 +1,113 @@
+name: Build & Push Image
+
+on:
+  workflow_call:
+    outputs:
+      image-digest:
+        description: "The immutable SHA256 digest of the pushed Docker image"
+        value: ${{ jobs.build-and-push.outputs.image-digest }}
+      image-tag:
+        description: "The primary immutable tag pushed to GHCR"
+        value: ${{ jobs.build-and-push.outputs.image-tag }}
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  verify:
+    name: Verify Before Image Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Java 21 (Eclipse Temurin)
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
+
+      - name: Validate Maven Wrapper
+        run: chmod +x ./mvnw
+
+      - name: Run Maven Clean Verify
+        run: ./mvnw --batch-mode clean verify
+
+  build-and-push:
+    name: Build & Push to GHCR
+    needs: [verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      image-digest: ${{ steps.build-push.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker Metadata (Tags & Labels)
+        id: meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=${{ github.sha }}
+            type=ref,event=tag
+            type=raw,value=staging,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=BazaarHub Backend
+            org.opencontainers.image.description=Production-ready Modular Monolith Spring Boot Backend
+            org.opencontainers.image.vendor=BazaarHub
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and Push Docker Image
+        id: build-push
+        uses: docker/build-push-action@471d1dc4e07e709c335e9f11077f2573d1d64f6d # v6.15.0
+        with:
+          context: .
+          file: deployment/docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Log out from GHCR
+        if: always()
+        run: docker logout ${{ env.REGISTRY }} || true
+
+      - name: Output Image Summary
+        run: |
+          echo "=========================================="
+          echo "Image successfully built and pushed to GHCR"
+          echo "Registry: ${{ env.REGISTRY }}"
+          echo "Image:    ${{ env.IMAGE_NAME }}"
+          echo "Digest:   ${{ steps.build-push.outputs.digest }}"
+          echo "Tags:     ${{ steps.meta.outputs.tags }}"
+          echo "=========================================="

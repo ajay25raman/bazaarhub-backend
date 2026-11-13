@@ -1,0 +1,60 @@
+# ==============================================================================
+# BazaarHub Backend - Production Environment Docker Compose
+# Project Name: bazaarhub-production
+# Host Path: /opt/bazaarhub/production/docker-compose.yml
+# ==============================================================================
+
+name: bazaarhub-production
+
+services:
+  backend:
+    image: ${IMAGE_DEPLOY_REF:-${IMAGE_NAME:-ghcr.io/bazaarhub/bazaarhub-backend}:${IMAGE_TAG:-latest}}
+    container_name: bazaarhub-production-backend
+    restart: always
+    user: "10001:10001"
+    
+    # Internal port forwarding bound ONLY to localhost (Reverse Proxy routes public traffic)
+    ports:
+      - "127.0.0.1:${PROD_APP_PORT:-8080}:8080"
+      
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SERVER_PORT=8080
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=never
+      - JAVA_OPTS=${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError}
+      
+    # Load production environment variables from local VPS file (never committed to Git)
+    env_file:
+      - path: .env
+        required: true
+        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-s", "http://localhost:8080/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "1.0"
+          memory: 1024M
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+        
+    networks:
+      - bazaarhub-production-net
+
+networks:
+  bazaarhub-production-net:
+    name: bazaarhub-production-net
+    driver: bridge
