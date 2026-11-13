@@ -64,9 +64,12 @@ public class GlobalRestExceptionHandler {
                 .body(ApiResponse.error("Forbidden: You do not have permission to access this resource"));
     }
 
-    @ExceptionHandler(AccountNotActiveException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccountNotActive(AccountNotActiveException ex) {
-        log.warn("[REST EXCEPTION] Account not active: {}", ex.getMessage());
+    @ExceptionHandler({
+            AccountNotActiveException.class,
+            com.bazaarhub.backend.catalog.domain.exception.UnauthorizedProductAccessException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleForbiddenExceptions(RuntimeException ex) {
+        log.warn("[REST EXCEPTION] Forbidden: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(ex.getMessage()));
@@ -77,7 +80,9 @@ public class GlobalRestExceptionHandler {
             com.bazaarhub.backend.seller.domain.exception.SellerAlreadyExistsException.class,
             com.bazaarhub.backend.seller.domain.exception.StoreAlreadyExistsException.class,
             com.bazaarhub.backend.catalog.domain.exception.CategoryAlreadyExistsException.class,
-            com.bazaarhub.backend.catalog.domain.exception.BrandAlreadyExistsException.class
+            com.bazaarhub.backend.catalog.domain.exception.BrandAlreadyExistsException.class,
+            com.bazaarhub.backend.catalog.domain.exception.ProductAlreadyExistsException.class,
+            com.bazaarhub.backend.catalog.domain.exception.SkuAlreadyExistsException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleAlreadyExists(RuntimeException ex) {
         log.warn("[REST EXCEPTION] Conflict: {}", ex.getMessage());

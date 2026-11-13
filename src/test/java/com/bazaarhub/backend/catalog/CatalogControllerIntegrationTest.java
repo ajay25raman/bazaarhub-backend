@@ -7,6 +7,9 @@ import com.bazaarhub.backend.catalog.application.dto.request.CategoryCreateReque
 import com.bazaarhub.backend.catalog.application.dto.request.CategoryStatusUpdateRequest;
 import com.bazaarhub.backend.catalog.application.dto.request.CategoryUpdateRequest;
 import com.bazaarhub.backend.catalog.domain.model.CatalogStatus;
+import com.bazaarhub.backend.catalog.infrastructure.persistence.entity.BrandEntity;
+import com.bazaarhub.backend.catalog.infrastructure.persistence.entity.CategoryEntity;
+import com.bazaarhub.backend.catalog.infrastructure.persistence.entity.ProductEntity;
 import com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataBrandRepository;
 import com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataCategoryRepository;
 import com.bazaarhub.backend.identity.application.dto.LoginRequest;
@@ -74,6 +77,9 @@ class CatalogControllerIntegrationTest {
     private SpringDataBrandRepository brandRepository;
 
     @Autowired
+    private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataProductRepository productRepository;
+
+    @Autowired
     private SpringDataSellerRepository sellerRepository;
 
     @Autowired
@@ -93,18 +99,8 @@ class CatalogControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Ensure products table stub exists in test H2 for referential check
-        jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS products (
-                id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                category_id BIGINT,
-                brand_id BIGINT,
-                status VARCHAR(20) DEFAULT 'ACTIVE'
-            )
-        """);
-        jdbcTemplate.execute("DELETE FROM products");
-
         // Clear previous state respecting FK dependencies
+        productRepository.deleteAll();
         categoryRepository.deleteAll();
         brandRepository.deleteAll();
         bankAccountRepository.deleteAll();
@@ -150,6 +146,22 @@ class CatalogControllerIntegrationTest {
         userRepository.save(adminUser);
 
         adminToken = login("catalog.admin@bazaarhub.com", "AdminPass123!");
+    }
+
+    private com.bazaarhub.backend.seller.infrastructure.persistence.entity.SellerEntity createTestSeller() {
+        UserEntity sellerUser = userRepository.save(UserEntity.builder()
+                .fullName("Test Seller")
+                .email("seller.test." + System.nanoTime() + "@bazaarhub.com")
+                .phone("+91987" + (System.currentTimeMillis() % 10000000))
+                .passwordHash("hash")
+                .build());
+
+        return sellerRepository.save(com.bazaarhub.backend.seller.infrastructure.persistence.entity.SellerEntity.builder()
+                .user(sellerUser)
+                .businessName("Test Store")
+                .approvalStatus(com.bazaarhub.backend.seller.domain.model.SellerApprovalStatus.APPROVED)
+                .verificationStatus(com.bazaarhub.backend.seller.domain.model.SellerVerificationStatus.VERIFIED)
+                .build());
     }
 
     private String registerAndLogin(String name, String email, String phone, String password) throws Exception {
@@ -318,7 +330,16 @@ class CatalogControllerIntegrationTest {
                 .status(CatalogStatus.INACTIVE)
                 .build();
 
-        jdbcTemplate.execute("INSERT INTO products (category_id, status) VALUES (" + childCatId + ", 'ACTIVE')");
+        var testSeller = createTestSeller();
+        CategoryEntity childCat = categoryRepository.findById(childCatId).orElseThrow();
+        productRepository.save(com.bazaarhub.backend.catalog.infrastructure.persistence.entity.ProductEntity.builder()
+                .seller(testSeller)
+                .category(childCat)
+                .name("Linked Product")
+                .slug("linked-product-" + System.nanoTime())
+                .status(com.bazaarhub.backend.catalog.domain.model.ProductStatus.ACTIVE)
+                .approvalStatus(com.bazaarhub.backend.catalog.domain.model.ProductApprovalStatus.APPROVED)
+                .build());
 
         mockMvc.perform(patch("/api/v1/admin/categories/" + childCatId + "/status")
                         .header("Authorization", "Bearer " + adminToken)
@@ -328,7 +349,7 @@ class CatalogControllerIntegrationTest {
                 .andExpect(jsonPath("$.message", containsString("active product(s) linked to it")));
 
         // Clear products
-        jdbcTemplate.execute("DELETE FROM products");
+        productRepository.deleteAll();
 
         // Test deactivation guard: Parent cannot be deactivated while active child subcategory exists
         mockMvc.perform(patch("/api/v1/admin/categories/" + rootCatId + "/status")
@@ -458,7 +479,23 @@ class CatalogControllerIntegrationTest {
                 .status(CatalogStatus.INACTIVE)
                 .build();
 
-        jdbcTemplate.execute("INSERT INTO products (brand_id, status) VALUES (" + brandId + ", 'ACTIVE')");
+        var testSeller = createTestSeller();
+        CategoryEntity tempCat = categoryRepository.save(CategoryEntity.builder()
+                .name("Temp Cat " + System.nanoTime())
+                .slug("temp-cat-" + System.nanoTime())
+                .status(CatalogStatus.ACTIVE)
+                .displayOrder(1)
+                .build());
+        BrandEntity linkedBrand = brandRepository.findById(brandId).orElseThrow();
+        productRepository.save(com.bazaarhub.backend.catalog.infrastructure.persistence.entity.ProductEntity.builder()
+                .seller(testSeller)
+                .category(tempCat)
+                .brand(linkedBrand)
+                .name("Brand Linked Product")
+                .slug("brand-linked-product-" + System.nanoTime())
+                .status(com.bazaarhub.backend.catalog.domain.model.ProductStatus.ACTIVE)
+                .approvalStatus(com.bazaarhub.backend.catalog.domain.model.ProductApprovalStatus.APPROVED)
+                .build());
 
         mockMvc.perform(patch("/api/v1/admin/brands/" + brandId + "/status")
                         .header("Authorization", "Bearer " + adminToken)
@@ -468,7 +505,7 @@ class CatalogControllerIntegrationTest {
                 .andExpect(jsonPath("$.message", containsString("active product(s) linked to it")));
 
         // Clear products
-        jdbcTemplate.execute("DELETE FROM products");
+        productRepository.deleteAll();
 
         // Admin deactivates brand
         mockMvc.perform(patch("/api/v1/admin/brands/" + brandId + "/status")
