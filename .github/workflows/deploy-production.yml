@@ -259,7 +259,7 @@ jobs:
           ref: ${{ needs.validate-and-resolve.outputs.commit_sha }}
 
       - name: Sync Compose and Operational Scripts
-        uses: appleboy/scp-action@0b59b964344be90786df749712eeab055f2d6582 # v0.1.7
+        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
@@ -271,7 +271,7 @@ jobs:
           overwrite: true
 
       - name: Execute Production Deployment over SSH
-        uses: appleboy/ssh-action@7eaf766715f081548cf0930777e112d7c0f1620a # v1.2.0
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.2.0
         env:
           IMAGE_REF: ${{ needs.validate-and-resolve.outputs.image_ref }}
           RELEASE_TAG: ${{ needs.validate-and-resolve.outputs.release_tag }}
