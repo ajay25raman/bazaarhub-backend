@@ -75,7 +75,9 @@ public class GlobalRestExceptionHandler {
     @ExceptionHandler({
             UserAlreadyExistsException.class,
             com.bazaarhub.backend.seller.domain.exception.SellerAlreadyExistsException.class,
-            com.bazaarhub.backend.seller.domain.exception.StoreAlreadyExistsException.class
+            com.bazaarhub.backend.seller.domain.exception.StoreAlreadyExistsException.class,
+            com.bazaarhub.backend.catalog.domain.exception.CategoryAlreadyExistsException.class,
+            com.bazaarhub.backend.catalog.domain.exception.BrandAlreadyExistsException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleAlreadyExists(RuntimeException ex) {
         log.warn("[REST EXCEPTION] Conflict: {}", ex.getMessage());

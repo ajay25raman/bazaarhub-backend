@@ -38,6 +38,12 @@ class SwaggerOpenApiDocumentationTest {
                 .andExpect(jsonPath("$.paths['/api/v1/auth/login']", notNullValue()))
                 .andExpect(jsonPath("$.paths['/api/v1/auth/me']", notNullValue()))
                 .andExpect(jsonPath("$.paths['/api/v1/auth/logout']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/categories']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/categories/tree']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/categories/root']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/brands']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/admin/categories']", notNullValue()))
+                .andExpect(jsonPath("$.paths['/api/v1/admin/brands']", notNullValue()))
                 .andExpect(jsonPath("$.paths['/api/v1/auth/me'].get.security[0].bearerAuth", notNullValue()));
     }
 

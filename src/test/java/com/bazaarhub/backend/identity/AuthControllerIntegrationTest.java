@@ -55,8 +55,16 @@ class AuthControllerIntegrationTest {
     @Autowired(required = false)
     private com.bazaarhub.backend.seller.infrastructure.persistence.repository.SpringDataSellerRepository sellerRepository;
 
+    @Autowired(required = false)
+    private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataCategoryRepository categoryRepository;
+
+    @Autowired(required = false)
+    private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataBrandRepository brandRepository;
+
     @BeforeEach
     void cleanUp() {
+        if (categoryRepository != null) categoryRepository.deleteAll();
+        if (brandRepository != null) brandRepository.deleteAll();
         if (bankAccountRepository != null) bankAccountRepository.deleteAll();
         if (documentRepository != null) documentRepository.deleteAll();
         if (storeRepository != null) storeRepository.deleteAll();

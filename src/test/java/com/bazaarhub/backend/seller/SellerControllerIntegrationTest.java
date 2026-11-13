@@ -73,6 +73,12 @@ class SellerControllerIntegrationTest {
     @Autowired
     private SpringDataSellerBankAccountRepository bankAccountRepository;
 
+    @Autowired(required = false)
+    private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataCategoryRepository categoryRepository;
+
+    @Autowired(required = false)
+    private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataBrandRepository brandRepository;
+
     private String customerToken;
     private Long customerUserId;
 
@@ -85,6 +91,8 @@ class SellerControllerIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         // Clear previous state in referential integrity order
+        if (categoryRepository != null) categoryRepository.deleteAll();
+        if (brandRepository != null) brandRepository.deleteAll();
         bankAccountRepository.deleteAll();
         documentRepository.deleteAll();
         storeRepository.deleteAll();
