@@ -54,6 +54,7 @@ jobs:
           host: ${{ secrets.STAGING_SSH_HOST }}
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
+          passphrase: ${{ secrets.STAGING_SSH_PASSPHRASE }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           source: "deployment/compose/docker-compose.staging.yml,deployment/scripts/health-check.sh,deployment/scripts/rollback.sh"
           target: "/opt/bazaarhub/staging"
@@ -72,6 +73,7 @@ jobs:
           host: ${{ secrets.STAGING_SSH_HOST }}
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
+          passphrase: ${{ secrets.STAGING_SSH_PASSPHRASE }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           envs: IMAGE_REPOSITORY,IMAGE_TAG,GHCR_USER,GHCR_TOKEN,STAGING_APP_PORT
           script: |
