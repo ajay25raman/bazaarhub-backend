@@ -68,6 +68,15 @@ public class ProductImageService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductImageResponse> getImages(Long userId, Long productId, boolean isAdmin) {
+        productService.getProductAndValidateOwnership(productId, userId, isAdmin);
+        return imageRepository.findByProductIdOrderByDisplayOrderAscIdAsc(productId)
+                .stream()
+                .map(ProductMapper::toImageResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductImageResponse> getImages(Long productId) {
         return imageRepository.findByProductIdOrderByDisplayOrderAscIdAsc(productId)
                 .stream()

@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/v1/seller/products/{productId}/images")
 @Tag(name = "Seller Product Images", description = "Endpoints for managing product photo gallery metadata")
 @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
-@PreAuthorize("hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER')")
+@PreAuthorize("hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER', 'ROLE_ADMIN')")
 public class SellerProductImageController {
 
     private final ProductImageService imageService;
@@ -55,10 +55,17 @@ public class SellerProductImageController {
     @GetMapping
     @Operation(summary = "List product images", description = "Retrieves all images associated with the product in display order.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Images retrieved successfully")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Images retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Not product owner", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
     })
-    public ResponseEntity<ApiResponse<List<ProductImageResponse>>> getImages(@PathVariable Long productId) {
-        List<ProductImageResponse> images = imageService.getImages(productId);
+    public ResponseEntity<ApiResponse<List<ProductImageResponse>>> getImages(
+            @PathVariable Long productId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
+        boolean isAdmin = principal != null && principal.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        Long userId = principal != null ? principal.getId() : null;
+        List<ProductImageResponse> images = imageService.getImages(userId, productId, isAdmin);
         return ResponseEntity.ok(ApiResponse.ok(images));
     }
 

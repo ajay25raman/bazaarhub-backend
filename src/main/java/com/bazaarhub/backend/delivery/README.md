@@ -1,99 +1,145 @@
-# Delivery & Logistics Module (`com.bazaarhub.backend.delivery`)
+# Delivery & Logistics Operations Module (`com.bazaarhub.backend.delivery`)
 
 ## 1. Module Overview
-The Delivery module manages delivery personnel assignment, pickup and dispatch workflows, real-time geotracking, delivery route optimization, and proof of delivery.
-
-This module is designed as an autonomous vertical slice of the BazaarHub Modular Monolith, strictly adhering to Clean Architecture and Domain-Driven Design (DDD) principles.
-
----
-
-## 2. Business Responsibilities
-- Delivery partner profile, vehicle type, and operational status management
-- Automated delivery task assignment based on proximity and capacity
-- Delivery task state machine (PENDING, ASSIGNED, ACCEPTED, PICKED_UP, IN_TRANSIT, DELIVERED, FAILED)
-- Proof of Delivery (POD) verification via OTP, customer signature, or geofence confirmation
-- Delivery partner earnings and tip tracking
-
----
-
-## 3. Implementation Status & Roadmap
-
-### Implemented Functionality (Phase 1 Foundation)
-- [x] Clean Architecture folder hierarchy (`domain`, `application`, `infrastructure`, `presentation`).
-- [x] Module boundary isolation within `com.bazaarhub.backend.delivery`.
-- [x] Layer package definitions and architectural contracts.
-- [x] Unit and slice test package scaffolding under `src/test/java/com/bazaarhub/backend/delivery`.
-
-### Planned Functionality (Subsequent Phases)
-- [ ] Proximity-based delivery assignment algorithm
-- [ ] Delivery OTP generation and verification port
-- [ ] Real-time GPS coordinate streaming adapter
-- [ ] Failed delivery retry policy management
+The Delivery & Logistics module is an enterprise-grade autonomous vertical slice of the BazaarHub Modular Monolith responsible for:
+- Delivery Partner (Rider) Onboarding, Vehicle Profiling, and Operational Availability Management
+- Administrative KYC Verification (Approve/Reject) and Account Status Controls (Active/Suspended)
+- Shipment Lifecycle Tracking and Automated Dispatch Management
+- Delivery Task Assignment, Reassignment, Acceptance, and Rejection State Machine
+- Store Parcel Pickup Confirmation with packaging condition logging
+- Cryptographically Secure Delivery OTP Generation, Salted Hashing, and Verification
+- Proof of Delivery (POD) and Evidence Document Archival via Cloudinary
+- Real-Time GPS Tracking and Geolocation Logging (`delivery_tracking`)
+- Google Maps Platform Route Modeling (Directions & Haversine fallback)
+- Firebase Cloud Messaging (FCM) Push Notifications for Delivery Milestones
+- Seamless Settlement Integration with Phase 10 Cash on Delivery (COD) Payment Flow
 
 ---
 
-## 4. Clean Architecture Layer Responsibilities
+## 2. Architecture & Design Patterns
+
+Strictly follows **Clean Architecture**, **SOLID principles**, and **Domain-Driven Design (DDD)**:
 
 ```
 delivery/
-├── domain/                  # Core Business Logic (Framework-independent)
-│   ├── model/               # Domain Entities and Aggregates
-│   ├── valueobject/         # Immutable Value Objects
-│   ├── repository/          # Repository Abstractions (SPI)
-│   ├── service/             # Domain Services (multi-entity logic)
-│   ├── event/               # Domain Events published upon state transitions
-│   └── exception/           # Business and Domain-specific Exceptions
+├── domain/                                  # Pure Domain Rules (Zero Framework Dependencies)
+│   ├── model/                               # Enums & Domain Value Objects
+│   │   ├── VehicleType                      # BIKE, SCOOTER, BICYCLE, OTHER
+│   │   ├── DeliveryBoyVerificationStatus    # PENDING, VERIFIED, REJECTED
+│   │   ├── DeliveryBoyAvailabilityStatus    # AVAILABLE, BUSY, OFFLINE, SUSPENDED
+│   │   ├── ShipmentStatus                   # READY_FOR_PICKUP, PICKED_UP, OUT_FOR_DELIVERY, DELIVERED, FAILED
+│   │   ├── DeliveryAssignmentStatus         # ASSIGNED, ACCEPTED, REJECTED, PICKED_UP, COMPLETED, CANCELLED
+│   │   └── DeliveryFailureReason            # CUSTOMER_UNAVAILABLE, INCORRECT_ADDRESS, etc.
+│   └── exception/                           # Domain Exceptions
+│       ├── DeliveryBoyNotFoundException
+│       ├── DeliveryAssignmentNotFoundException
+│       ├── ShipmentNotFoundException
+│       ├── DeliveryBoyAlreadyExistsException
+│       ├── UnauthorizedDeliveryAccessException
+│       ├── InvalidDeliveryOperationException
+│       └── InvalidDeliveryOtpException
 │
-├── application/             # Application Orchestration & Use Cases
-│   ├── port/
-│   │   ├── input/           # Input Ports (Use Case Interfaces)
-│   │   └── output/          # Output Ports (SPI for persistence, external services)
-│   ├── usecase/             # Use Case Implementations
-│   ├── command/             # State-mutating Command objects
-│   ├── query/               # Read-only Query objects
-│   ├── dto/                 # Application Data Transfer Objects
-│   └── mapper/              # Domain-to-DTO and Command-to-Domain mappers
+├── application/                             # Application Orchestration & Use Cases
+│   ├── dto/
+│   │   ├── request/                         # Strongly validated request contracts
+│   │   └── response/                        # Standardized response models
+│   ├── mapper/                              # Entity-to-DTO Mappers (DeliveryMapper)
+│   └── service/                             # Business Services & Cryptographic Handlers
+│       ├── DeliveryBoyService & Impl
+│       ├── ShipmentService & Impl
+│       ├── DeliveryAssignmentService & Impl
+│       ├── DeliveryTrackingService & Impl
+│       └── DeliveryOtpService               # SecureRandom 6-digit OTP + Salted SHA-256
 │
-├── infrastructure/          # Technical Details & External Adapters
-│   ├── persistence/
-│   │   ├── entity/          # Database/ORM Entities (e.g., JPA/MariaDB in future phases)
-│   │   ├── repository/      # Spring Data Repositories & Output Port Implementations
-│   │   └── mapper/          # Entity-to-Domain Model Mappers
-│   ├── adapter/             # External service adapters (e.g., messaging, cloud SDKs)
-│   └── config/              # Module-specific Spring configuration beans
+├── infrastructure/                          # Adapters & Persistence Layer
+│   ├── adapter/                             # Third-party service integrations
+│   │   ├── CloudinaryService                # Image & proof upload adapter
+│   │   ├── GoogleMapsService                # Directions API & distance estimator
+│   │   └── FcmPushNotificationService       # FCM Push Notification dispatcher
+│   └── persistence/
+│       ├── entity/                          # MariaDB JPA Entities (ddl-auto=validate compatible)
+│       │   ├── DeliveryBoyEntity            # maps delivery_boys
+│       │   ├── ShipmentEntity               # maps shipments
+│       │   ├── DeliveryAssignmentEntity     # maps delivery_assignments
+│       │   └── DeliveryTrackingEntity       # maps delivery_tracking
+│       └── repository/                      # Spring Data JPA Repositories
 │
-└── presentation/            # External Delivery Mechanism (HTTP/REST)
-    └── rest/
-        ├── controller/      # REST API Controllers (Thin adapters)
-        ├── request/         # Incoming HTTP Request DTOs with validation rules
-        └── response/        # Outgoing HTTP Response DTOs
+└── presentation/rest/                       # Thin REST Controllers
+    ├── DeliveryBoyController                # /api/v1/delivery/**
+    ├── AdminDeliveryController              # /api/v1/admin/delivery/**
+    └── CustomerDeliveryTrackingController   # /api/v1/delivery/tracking/**
 ```
 
-### Layer Rules
-1. **Domain Layer**: Contains enterprise business rules. Has ZERO dependencies on Spring Framework, database drivers, or HTTP frameworks.
-2. **Application Layer**: Coordinates use cases, transaction boundaries, and security rules. Depends solely on domain abstractions.
-3. **Infrastructure Layer**: Implements output ports defined by application/domain. Contains database entities, Spring Data repositories, and third-party adapters.
-4. **Presentation Layer**: Thin REST controllers validating incoming HTTP payloads and delegating immediately to application input ports.
+---
+
+## 3. Database Schema Mapping
+
+Entities strictly map to MariaDB 11.8.9 tables without any DDL modifications:
+
+| Database Table | Entity Class | Primary Responsibility |
+|----------------|--------------|------------------------|
+| `delivery_boys` | `DeliveryBoyEntity` | Delivery partner profile, vehicle type, KYC status, and availability |
+| `shipments` | `ShipmentEntity` | Shipment dispatch record, carrier details, transit status, and delivery notes |
+| `delivery_assignments` | `DeliveryAssignmentEntity` | Assignment task lifecycle between delivery partner and shipment |
+| `delivery_tracking` | `DeliveryTrackingEntity` | Real-time GPS coordinate trail recorded during active delivery |
 
 ---
 
-## 5. Module Dependencies & Communication Rules
+## 4. API Endpoints Reference
 
-### Dependencies
-- **Shared Kernel**: `com.bazaarhub.backend.shared` (common domain exceptions, standardized API response wrapper, base value objects).
-- **External Module Access**: Interacts with Order, Store, Customer. Depends on Shared kernel.
+### Delivery Partner APIs (`/api/v1/delivery`)
+- `POST /api/v1/delivery/onboard`: Register as delivery partner (assigns `ROLE_DELIVERY`)
+- `GET /api/v1/delivery/profile`: View delivery partner profile and verification status
+- `PUT /api/v1/delivery/profile`: Update vehicle details
+- `PATCH /api/v1/delivery/availability`: Toggle operational status (`AVAILABLE` / `OFFLINE`)
+- `GET /api/v1/delivery/assignments`: List assigned deliveries (filterable by status)
+- `GET /api/v1/delivery/assignments/{id}`: Detailed assignment info (pickup, delivery addresses, COD)
+- `POST /api/v1/delivery/assignments/{id}/accept`: Accept assigned delivery task
+- `POST /api/v1/delivery/assignments/{id}/reject`: Reject delivery task with mandatory reason
+- `POST /api/v1/delivery/assignments/{id}/pickup`: Confirm parcel collection from seller store
+- `POST /api/v1/delivery/assignments/{id}/out-for-delivery`: Mark out for delivery (triggers OTP generation & SMS/FCM alert)
+- `POST /api/v1/delivery/assignments/{id}/complete`: Complete delivery (verifies OTP, collects COD cash if applicable)
+- `POST /api/v1/delivery/assignments/{id}/fail`: Mark delivery attempt failed with business reason
+- `POST /api/v1/delivery/tracking/location`: Post live GPS coordinates
+- `GET /api/v1/delivery/route-estimate/{shipmentId}`: Get route distance and ETA via Google Maps
+- `POST /api/v1/delivery/proof/upload`: Upload proof photo to Cloudinary
 
-### Cross-Module Communication Rules
-1. **No Shared Database Tables**: This module owns its data model exclusively. No other module may query this module's tables directly.
-2. **Public Contracts Only**: Other modules must communicate strictly via public Application Input Ports or asynchronous Domain Events.
-3. **No Circular Dependencies**: Circular dependencies between `delivery` and other modules are strictly prohibited.
-4. Subscribes to OrderConfirmedEvent; calls Order delivery status port upon successful delivery.
+### Admin Delivery APIs (`/api/v1/admin/delivery`)
+- `GET /api/v1/admin/delivery/boys`: List delivery partners (paginated, filterable)
+- `GET /api/v1/admin/delivery/boys/{id}`: View partner profile and history
+- `PATCH /api/v1/admin/delivery/boys/{id}/verify`: Approve/Reject partner KYC documentation
+- `PATCH /api/v1/admin/delivery/boys/{id}/status`: Suspend or activate partner account
+- `POST /api/v1/admin/delivery/shipments`: Create shipment for seller sub-order
+- `GET /api/v1/admin/delivery/shipments`: List shipments (filterable)
+- `GET /api/v1/admin/delivery/shipments/{id}`: Get shipment details
+- `POST /api/v1/admin/delivery/assignments`: Assign delivery partner to shipment
+- `POST /api/v1/admin/delivery/assignments/{id}/reassign`: Reassign shipment to another partner
+- `GET /api/v1/admin/delivery/assignments`: View all assignments across platform
+- `GET /api/v1/admin/delivery/tracking/{shipmentId}`: View GPS breadcrumb tracking trail
+
+### Customer Delivery Tracking APIs (`/api/v1/delivery/tracking`)
+- `GET /api/v1/delivery/tracking/{shipmentId}`: View latest GPS location of delivery partner
+- `GET /api/v1/delivery/tracking/{shipmentId}/estimate`: View remaining transit distance and ETA
+- `GET /api/v1/delivery/tracking/shipments/my`: View active shipments for authenticated customer
 
 ---
 
-## 6. Future Implementation Roadmap
-1. Define domain entities, value objects, and domain events.
-2. Implement application use cases and validation rules.
-3. Add repository output ports and mock test doubles.
-4. Expose REST endpoints with OpenAPI annotations and Spring Validation.
-5. In Phase 2: Add database persistence entities, Flyway migrations, and repository adapters.
+## 5. Security & Verification Rules
+
+1. **OTP Security**:
+   - 6-digit numeric OTP generated via `SecureRandom`.
+   - Stored in memory as a salted SHA-256 hash (never in plaintext).
+   - Never logged in application logs.
+   - Never returned in Delivery Boy API responses.
+   - Max 3 failed verification attempts before locking.
+   - Automatic 2-hour TTL expiration.
+   - Invalidated immediately upon successful delivery or failure.
+2. **COD Cash Collection**:
+   - Reconciles with Phase 10 `PaymentService`.
+   - Records `PaymentTransactionEntity` for collected cash.
+   - Transitions `PaymentEntity` to `CAPTURED` and `OrderEntity` to `PAID`.
+3. **Role-Based Access Control**:
+   - `/api/v1/delivery/onboard`: Authenticated users.
+   - `/api/v1/delivery/**`: `ROLE_DELIVERY` or `ROLE_ADMIN`.
+   - `/api/v1/admin/delivery/**`: `ROLE_ADMIN`.
+   - Ownership checks strictly enforced (riders cannot view or update other riders' assignments).

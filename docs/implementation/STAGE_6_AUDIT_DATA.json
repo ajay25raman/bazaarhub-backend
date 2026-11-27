@@ -1,0 +1,5748 @@
+[
+  {
+    "class_name": "AdminAiController",
+    "package": "com.bazaarhub.backend.ai.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/ai/presentation/rest/AdminAiController.java",
+    "base_path": "/api/v1/admin/ai",
+    "tag_name": "Admin AI Management",
+    "tag_desc": "Administrative endpoints for monitoring AI consumption, token metrics, model configuration, and catalog tools",
+    "class_sec": true,
+    "class_preauth": "hasRole('ADMIN')",
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/ai/status",
+        "sub_path": "/status",
+        "has_op": true,
+        "op_summary": "Check AI operational health and provider settings",
+        "op_description": "Returns active provider, model name, timeout, and API key availability",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/ai/usage-statistics",
+        "sub_path": "/usage-statistics",
+        "has_op": true,
+        "op_summary": "Retrieve AI token usage and estimated cost analytics",
+        "op_description": "Aggregated token metrics, costs, and invocation breakdown across features",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/ai/generate-description",
+        "sub_path": "/generate-description",
+        "has_op": true,
+        "op_summary": "Admin catalog description generator",
+        "op_description": "Generates high-converting listing drafts for catalog moderation and administrative curation",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerAiAssistantController",
+    "package": "com.bazaarhub.backend.ai.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/ai/presentation/rest/CustomerAiAssistantController.java",
+    "base_path": "/api/v1/customer/ai",
+    "tag_name": "Customer AI Assistant",
+    "tag_desc": "Endpoints for authenticated customer shopping, order status inquiry, and AI support",
+    "class_sec": true,
+    "class_preauth": "hasAnyRole('CUSTOMER', 'ADMIN')",
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/ai/chat",
+        "sub_path": "/chat",
+        "has_op": true,
+        "op_summary": "Chat with BazaarHub AI Shopping & Support Assistant",
+        "op_description": "Query orders, shipments, policies, or marketplace help with verified customer ownership checks",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/ai/conversations",
+        "sub_path": "/conversations",
+        "has_op": true,
+        "op_summary": "List customer's AI conversation history",
+        "op_description": "Paginated list of previous conversational support sessions",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/ai/conversations/{id}/messages",
+        "sub_path": "/conversations/{id}/messages",
+        "has_op": true,
+        "op_summary": "Retrieve messages in a conversation session",
+        "op_description": "Ordered chronological list of messages in a specific session",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "PublicAiController",
+    "package": "com.bazaarhub.backend.ai.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/ai/presentation/rest/PublicAiController.java",
+    "base_path": "/api/v1/public/ai",
+    "tag_name": "Public AI Services",
+    "tag_desc": "Public endpoints for marketplace recommendations, review sentiment summaries, and guest support guidance",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/public/ai/chat",
+        "sub_path": "/chat",
+        "has_op": true,
+        "op_summary": "Guest inquiry chat with BazaarHub AI Assistant",
+        "op_description": "Answers general marketplace FAQs regarding shipping, returns, payment options, and shopping policies",
+        "response_codes": [
+          "200",
+          "400",
+          "500"
+        ],
+        "has_sec": false,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/public/ai/recommendations",
+        "sub_path": "/recommendations",
+        "has_op": true,
+        "op_summary": "AI-powered product recommendations",
+        "op_description": "Fetches active, approved, in-stock products with contextual recommendation rationale and verified pricing",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/public/ai/products/{productId}/review-summary",
+        "sub_path": "/products/{productId}/review-summary",
+        "has_op": true,
+        "op_summary": "AI product review sentiment synthesis",
+        "op_description": "Extracts positive themes, negative themes, recurring defect flags, and consensus from verified approved reviews",
+        "response_codes": [
+          "200",
+          "404",
+          "500"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "SellerAiCatalogController",
+    "package": "com.bazaarhub.backend.ai.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/ai/presentation/rest/SellerAiCatalogController.java",
+    "base_path": "/api/v1/seller/ai",
+    "tag_name": "Seller AI Catalog Tools",
+    "tag_desc": "AI-assisted product listing, description writing, and SEO optimization for merchants",
+    "class_sec": true,
+    "class_preauth": "hasAnyRole('SELLER', 'ADMIN')",
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/ai/generate-description",
+        "sub_path": "/generate-description",
+        "has_op": true,
+        "op_summary": "Generate AI product titles, descriptions, and SEO tags",
+        "op_description": "Generates high-converting listing drafts in status DRAFT. Output is strictly a draft requiring human merchant approval before publishing.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminAnalyticsController",
+    "package": "com.bazaarhub.backend.analytics.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/analytics/presentation/rest/AdminAnalyticsController.java",
+    "base_path": "/api/v1/admin/analytics",
+    "tag_name": "Admin Analytics & Reporting",
+    "tag_desc": "Platform-wide analytical dashboards, sales intelligence, and operational metrics",
+    "class_sec": true,
+    "class_preauth": "hasRole('ADMIN')",
+    "endpoint_count": 9,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/overview",
+        "sub_path": "/overview",
+        "has_op": true,
+        "op_summary": "Platform-level high-level executive overview",
+        "op_description": "Aggregated GMV, net revenue, total orders, customers, and active product stock indicators",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/sales",
+        "sub_path": "/sales",
+        "has_op": true,
+        "op_summary": "Sales metrics and daily revenue time series",
+        "op_description": "Gross merchandise value, net sales, refund deductions, and daily revenue breakdown",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/orders",
+        "sub_path": "/orders",
+        "has_op": true,
+        "op_summary": "Order fulfillment and volume breakdown",
+        "op_description": "Order status distribution, completion rate, and cancellation volume",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/products",
+        "sub_path": "/products",
+        "has_op": true,
+        "op_summary": "Catalog product performance and inventory health",
+        "op_description": "Top selling products by volume and revenue with inventory health metrics",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/categories",
+        "sub_path": "/categories",
+        "has_op": true,
+        "op_summary": "Category sales performance",
+        "op_description": "Revenue and units sold breakdown across product categories",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/sellers",
+        "sub_path": "/sellers",
+        "has_op": true,
+        "op_summary": "Top performing sellers leaderboard",
+        "op_description": "Ranked merchant list by GMV and completed volume",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/customers",
+        "sub_path": "/customers",
+        "has_op": true,
+        "op_summary": "Customer cohort metrics and retention",
+        "op_description": "Total customers, period signups, active buyers, and repeat purchase rate",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/delivery",
+        "sub_path": "/delivery",
+        "has_op": true,
+        "op_summary": "Logistics and shipping performance",
+        "op_description": "Delivery success rate, transit volume, and status distribution",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/analytics/support",
+        "sub_path": "/support",
+        "has_op": true,
+        "op_summary": "Customer support workload and resolution efficiency",
+        "op_description": "Ticket volume, category breakdown, open vs resolved ratio, and resolution rate",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "PublicAnalyticsEventController",
+    "package": "com.bazaarhub.backend.analytics.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/analytics/presentation/rest/PublicAnalyticsEventController.java",
+    "base_path": "/api/v1/public/analytics",
+    "tag_name": "Analytics Event Ingestion",
+    "tag_desc": "Public / client-side behavioral event tracking endpoint",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/public/analytics/events",
+        "sub_path": "/events",
+        "has_op": true,
+        "op_summary": "Track analytics event",
+        "op_description": "Asynchronously ingests client-side user actions (e.g. PAGE_VIEW, PRODUCT_VIEW, SEARCH, ADD_TO_CART)",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerAnalyticsController",
+    "package": "com.bazaarhub.backend.analytics.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/analytics/presentation/rest/SellerAnalyticsController.java",
+    "base_path": "/api/v1/seller/analytics",
+    "tag_name": "Seller Analytics",
+    "tag_desc": "Merchant operational dashboards, sales performance, and catalog inventory metrics (strictly isolated per merchant)",
+    "class_sec": true,
+    "class_preauth": "hasAnyRole('SELLER', 'ADMIN')",
+    "endpoint_count": 4,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/analytics/overview",
+        "sub_path": "/overview",
+        "has_op": true,
+        "op_summary": "Seller dashboard executive overview",
+        "op_description": "Merchant-scoped revenue, sub-order counts, pending fulfillments, and stock warnings",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/analytics/sales",
+        "sub_path": "/sales",
+        "has_op": true,
+        "op_summary": "Seller sales performance and daily revenue",
+        "op_description": "Daily revenue, orders, commission deductions, and net seller payable",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/analytics/products",
+        "sub_path": "/products",
+        "has_op": true,
+        "op_summary": "Seller top performing products",
+        "op_description": "Ranked list of seller's products by volume and revenue",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/analytics/orders",
+        "sub_path": "/orders",
+        "has_op": true,
+        "op_summary": "Seller order status breakdown and fulfillment rate",
+        "op_description": "Sub-order status distribution and completed fulfillment percentage",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerCartController",
+    "package": "com.bazaarhub.backend.cart.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/cart/presentation/rest/CustomerCartController.java",
+    "base_path": "/api/v1/cart",
+    "tag_name": "Customer Cart Management",
+    "tag_desc": "Endpoints for authenticated customers to view, modify, and manage their multi-vendor shopping cart",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('CART_READ', 'CART_UPDATE', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/cart",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get current customer's cart",
+        "op_description": "Retrieves the active cart for the authenticated customer. Creates an active cart automatically if one does not exist.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/cart/items",
+        "sub_path": "/items",
+        "has_op": true,
+        "op_summary": "Add item to cart",
+        "op_description": "Adds a product variant to the customer cart, validating product visibility, variant active status, and available warehouse stock.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/cart/items/{itemId}",
+        "sub_path": "/items/{itemId}",
+        "has_op": true,
+        "op_summary": "Update cart item quantity",
+        "op_description": "Updates the quantity of an existing cart item after revalidating product active status and warehouse stock.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/cart/items/{itemId}",
+        "sub_path": "/items/{itemId}",
+        "has_op": true,
+        "op_summary": "Remove item from cart",
+        "op_description": "Deletes a specific item from the customer's cart, strictly verifying item ownership.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/cart",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Clear all items from cart",
+        "op_description": "Clears all items from the customer's active shopping cart in a single transaction.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/cart/summary",
+        "sub_path": "/summary",
+        "has_op": true,
+        "op_summary": "Get cart summary",
+        "op_description": "Retrieves high-level cart summary including total items, unique items, subtotal, and seller-wise subtotal breakdown.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerCheckoutController",
+    "package": "com.bazaarhub.backend.cart.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/cart/presentation/rest/CustomerCheckoutController.java",
+    "base_path": "/api/v1/checkout",
+    "tag_name": "Customer Checkout Preparation",
+    "tag_desc": "Endpoints for authenticated customers to inspect checkout summary, validate items and stock, and set delivery address before order creation",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('CART_READ', 'CART_UPDATE', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/checkout/summary",
+        "sub_path": "/summary",
+        "has_op": true,
+        "op_summary": "Get checkout summary",
+        "op_description": "Prepares and returns current checkout summary with real-time stock verification, price validation, multi-vendor seller grouping, and address status.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/checkout/validate",
+        "sub_path": "/validate",
+        "has_op": true,
+        "op_summary": "Validate checkout readiness",
+        "op_description": "Performs strict pre-order validation on all cart items, available stock, current pricing, and customer delivery address.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/checkout/address",
+        "sub_path": "/address",
+        "has_op": true,
+        "op_summary": "Select delivery address for checkout",
+        "op_description": "Selects and verifies the customer delivery address for checkout, ensuring address ownership.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminBrandController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/AdminBrandController.java",
+    "base_path": "/api/v1/admin/brands",
+    "tag_name": "Admin Brand Management",
+    "tag_desc": "Administrative taxonomy APIs for brand and manufacturer management",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('BRAND_MANAGE', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/brands",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create brand",
+        "op_description": "Creates a new catalog brand. Only accessible by platform administrators.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/brands",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List brands",
+        "op_description": "Paginated brand retrieval with optional keyword and status filters.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/brands/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get brand by ID",
+        "op_description": "Retrieves brand details by ID (including inactive brands).",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/admin/brands/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Update brand",
+        "op_description": "Updates brand details, name, slug, and logo.",
+        "response_codes": [
+          "200",
+          "400",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/brands/{id}/status",
+        "sub_path": "/{id}/status",
+        "has_op": true,
+        "op_summary": "Activate or deactivate brand",
+        "op_description": "Transitions brand status. Prevents deactivation when active products are linked.",
+        "response_codes": [
+          "200",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminCategoryController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/AdminCategoryController.java",
+    "base_path": "/api/v1/admin/categories",
+    "tag_name": "Admin Category Management",
+    "tag_desc": "Administrative taxonomy APIs for category management",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('CATEGORY_MANAGE', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/categories",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create category",
+        "op_description": "Creates a new category. Only accessible by platform administrators.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/categories",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List categories",
+        "op_description": "Paginated category retrieval with optional search, parent, and status filters.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/categories/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get category by ID",
+        "op_description": "Retrieves category details by ID (including inactive categories).",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/admin/categories/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Update category",
+        "op_description": "Updates category details, display order, and parent hierarchy.",
+        "response_codes": [
+          "200",
+          "400",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/categories/{id}/status",
+        "sub_path": "/{id}/status",
+        "has_op": true,
+        "op_summary": "Activate or deactivate category",
+        "op_description": "Transitions category status. Prevents deactivation when active products or subcategories exist.",
+        "response_codes": [
+          "200",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminProductController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/AdminProductController.java",
+    "base_path": "/api/v1/admin/products",
+    "tag_name": "Admin Product Moderation",
+    "tag_desc": "Administrative operations for reviewing, approving, rejecting, and governing marketplace products",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PRODUCT_MODERATE', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/products",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List marketplace products for moderation",
+        "op_description": "Paginated product search with filtering by seller, category, brand, lifecycle status, approval status, and keyword.",
+        "response_codes": [
+          "200",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/products/{productId}",
+        "sub_path": "/{productId}",
+        "has_op": true,
+        "op_summary": "Get product review details",
+        "op_description": "Retrieves complete product record including images, variants, seller info, and moderation history.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/products/{productId}/approve",
+        "sub_path": "/{productId}/approve",
+        "has_op": true,
+        "op_summary": "Approve product",
+        "op_description": "Approves a pending product, clearing rejection reasons and publishing it to ACTIVE catalog status.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/products/{productId}/reject",
+        "sub_path": "/{productId}/reject",
+        "has_op": true,
+        "op_summary": "Reject product",
+        "op_description": "Rejects a product submission, setting approvalStatus to REJECTED and lifecycle status to INACTIVE. Requires explanation.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/products/{productId}/status",
+        "sub_path": "/{productId}/status",
+        "has_op": true,
+        "op_summary": "Update product status as admin",
+        "op_description": "Allows administrators to suspend or toggle lifecycle status of any product.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "BrandController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/BrandController.java",
+    "base_path": "/api/v1/brands",
+    "tag_name": "Catalog Brands",
+    "tag_desc": "Public brand exploration and directory APIs",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 4,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/brands",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List active brands",
+        "op_description": "Public paginated catalog brand directory with optional name search.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/brands/all",
+        "sub_path": "/all",
+        "has_op": true,
+        "op_summary": "Get all active brands",
+        "op_description": "Retrieves unpaginated alphabetical list of active brands for filters and navigation.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/brands/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get active brand by ID",
+        "op_description": "Retrieves public details for an active brand. Returns 404 if brand is inactive or missing.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/brands/slug/{slug}",
+        "sub_path": "/slug/{slug}",
+        "has_op": true,
+        "op_summary": "Get active brand by slug",
+        "op_description": "Retrieves public details for an active brand using its unique SEO slug.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "CategoryController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/CategoryController.java",
+    "base_path": "/api/v1/categories",
+    "tag_name": "Catalog Categories",
+    "tag_desc": "Public category exploration and navigation APIs",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/categories",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List active categories",
+        "op_description": "Public paginated catalog category listing with optional name search and parent filter.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/categories/tree",
+        "sub_path": "/tree",
+        "has_op": true,
+        "op_summary": "Get category hierarchy",
+        "op_description": "Returns the complete hierarchical tree of active categories with nested subcategories.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/categories/root",
+        "sub_path": "/root",
+        "has_op": true,
+        "op_summary": "Get root categories",
+        "op_description": "Returns top-level root categories that have no parent.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/categories/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get active category by ID",
+        "op_description": "Retrieves public details for an active category. Returns 404 if category is inactive or missing.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/categories/slug/{slug}",
+        "sub_path": "/slug/{slug}",
+        "has_op": true,
+        "op_summary": "Get active category by slug",
+        "op_description": "Retrieves public details for an active category using its unique SEO slug.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "ProductController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/ProductController.java",
+    "base_path": "/api/v1/products",
+    "tag_name": "Product Catalog",
+    "tag_desc": "Public customer storefront product browsing and search APIs",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Search public catalog products",
+        "op_description": "Paginated listing of approved, active products for storefront display with optional category, brand, and keyword filters.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products/{productId}",
+        "sub_path": "/{productId}",
+        "has_op": true,
+        "op_summary": "Get product details by ID",
+        "op_description": "Retrieves public product details, gallery images, and active variants for customer storefront.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products/slug/{slug}",
+        "sub_path": "/slug/{slug}",
+        "has_op": true,
+        "op_summary": "Get product details by slug",
+        "op_description": "SEO-friendly endpoint retrieving product details by URL slug.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "SellerProductController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/SellerProductController.java",
+    "base_path": "/api/v1/seller/products",
+    "tag_name": "Seller Product Management",
+    "tag_desc": "Endpoints for merchant product catalog lifecycle management",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PRODUCT_CREATE', 'PRODUCT_UPDATE', 'ROLE_SELLER')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/products",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create product",
+        "op_description": "Creates a new product in the catalog. Initial approvalStatus is PENDING.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/products",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller's products",
+        "op_description": "Retrieves paginated products owned by the authenticated seller with optional filters.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/products/{productId}",
+        "sub_path": "/{productId}",
+        "has_op": true,
+        "op_summary": "Get seller product by ID",
+        "op_description": "Retrieves detailed product representation with images and variants. Must be owned by seller.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/seller/products/{productId}",
+        "sub_path": "/{productId}",
+        "has_op": true,
+        "op_summary": "Update product details",
+        "op_description": "Updates title, description, category, brand, or slug of an owned product.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/products/{productId}/status",
+        "sub_path": "/{productId}/status",
+        "has_op": true,
+        "op_summary": "Update product status",
+        "op_description": "Updates the lifecycle status of an owned product (e.g., DRAFT, ACTIVE, INACTIVE).",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/seller/products/{productId}",
+        "sub_path": "/{productId}",
+        "has_op": true,
+        "op_summary": "Archive product",
+        "op_description": "Soft deletes/archives an owned product.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerProductImageController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/SellerProductImageController.java",
+    "base_path": "/api/v1/seller/products/{productId}/images",
+    "tag_name": "Seller Product Images",
+    "tag_desc": "Endpoints for managing product photo gallery metadata",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/products/{productId}/images",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Add image to product",
+        "op_description": "Associates an image URL with the product. If isPrimary is true, existing primary is demoted.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/products/{productId}/images",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List product images",
+        "op_description": "Retrieves all images associated with the product in display order.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/products/{productId}/images/{imageId}/primary",
+        "sub_path": "/{imageId}/primary",
+        "has_op": true,
+        "op_summary": "Set primary hero image",
+        "op_description": "Marks this image as the primary hero image and unsets all other primaries.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/products/{productId}/images/{imageId}/order",
+        "sub_path": "/{imageId}/order",
+        "has_op": true,
+        "op_summary": "Update image display order",
+        "op_description": "Updates the display order sorting index of a product image.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/seller/products/{productId}/images/{imageId}",
+        "sub_path": "/{imageId}",
+        "has_op": true,
+        "op_summary": "Delete product image",
+        "op_description": "Removes an image. If it was primary, the next available image is automatically promoted.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerProductVariantController",
+    "package": "com.bazaarhub.backend.catalog.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/catalog/presentation/rest/SellerProductVariantController.java",
+    "base_path": "/api/v1/seller/products/{productId}/variants",
+    "tag_name": "Seller Product Variants",
+    "tag_desc": "Endpoints for managing product SKU variants, pricing, attributes, and barcodes",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/products/{productId}/variants",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create product variant",
+        "op_description": "Adds a SKU variant to the product. Validates MRP >= selling price and unique SKU.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/products/{productId}/variants",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List product variants",
+        "op_description": "Retrieves all SKU variants for a product.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/products/{productId}/variants/{variantId}",
+        "sub_path": "/{variantId}",
+        "has_op": true,
+        "op_summary": "Get variant by ID",
+        "op_description": "Retrieves details of a specific SKU variant.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/seller/products/{productId}/variants/{variantId}",
+        "sub_path": "/{variantId}",
+        "has_op": true,
+        "op_summary": "Update product variant",
+        "op_description": "Updates SKU, barcode, pricing, weight, or attributes of an existing variant.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/products/{productId}/variants/{variantId}/status",
+        "sub_path": "/{variantId}/status",
+        "has_op": true,
+        "op_summary": "Toggle variant status",
+        "op_description": "Enables or disables an individual variant (ACTIVE / INACTIVE).",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/seller/products/{productId}/variants/{variantId}",
+        "sub_path": "/{variantId}",
+        "has_op": true,
+        "op_summary": "Delete product variant",
+        "op_description": "Deletes a variant from the product.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerAddressController",
+    "package": "com.bazaarhub.backend.customer.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/customer/presentation/rest/CustomerAddressController.java",
+    "base_path": "/api/v1/customer/addresses",
+    "tag_name": "Customer Address Management",
+    "tag_desc": "Endpoints for authenticated customers to manage delivery addresses, default selection, and address books",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('CUSTOMER_PROFILE_READ', 'CUSTOMER_PROFILE_UPDATE', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/addresses",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Add delivery address",
+        "op_description": "Adds a new delivery address for the authenticated customer. If designated as default or is first address, unsets any existing default.",
+        "response_codes": [
+          "201",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/addresses",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get all addresses",
+        "op_description": "Retrieves all saved delivery addresses for the authenticated customer, ordered with the default address first.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/addresses/default",
+        "sub_path": "/default",
+        "has_op": true,
+        "op_summary": "Get default delivery address",
+        "op_description": "Retrieves the customer's primary default delivery address.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/addresses/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get address by ID",
+        "op_description": "Retrieves a single delivery address by ID. Enforces customer data ownership.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/customer/addresses/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Update delivery address",
+        "op_description": "Updates details of an existing delivery address. Enforces customer data ownership.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/addresses/{id}/default",
+        "sub_path": "/{id}/default",
+        "has_op": true,
+        "op_summary": "Set address as default",
+        "op_description": "Sets the specified address as the customer's primary default address, transactionally unsetting any prior default.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/customer/addresses/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Delete delivery address",
+        "op_description": "Removes a delivery address. If the deleted address was the default, automatically promotes the most recently updated remaining address to default.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerProfileController",
+    "package": "com.bazaarhub.backend.customer.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/customer/presentation/rest/CustomerProfileController.java",
+    "base_path": "/api/v1/customer/profile",
+    "tag_name": "Customer Profile Management",
+    "tag_desc": "Endpoints for authenticated customers to view, initialize, and update personal account profile data",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('CUSTOMER_PROFILE_READ', 'CUSTOMER_PROFILE_UPDATE', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/profile",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get current customer profile",
+        "op_description": "Retrieves the personal profile details for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/profile/account",
+        "sub_path": "/account",
+        "has_op": true,
+        "op_summary": "Get complete customer account profile",
+        "op_description": "Retrieves the full customer account information, returning basic user info even if extended profile is not yet created.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/profile",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create customer profile",
+        "op_description": "Initializes a customer profile if not already present. Prevents duplicate profile creation.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/customer/profile",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Update customer profile",
+        "op_description": "Updates full personal profile information for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/profile/dob",
+        "sub_path": "/dob",
+        "has_op": true,
+        "op_summary": "Update customer date of birth",
+        "op_description": "Updates only the date of birth field in the customer profile.",
+        "response_codes": [
+          "200",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/profile/gender",
+        "sub_path": "/gender",
+        "has_op": true,
+        "op_summary": "Update customer gender",
+        "op_description": "Updates only the gender field in the customer profile.",
+        "response_codes": [
+          "200",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/profile/image",
+        "sub_path": "/image",
+        "has_op": true,
+        "op_summary": "Update customer profile image URL",
+        "op_description": "Updates only the profile image URL in the customer profile.",
+        "response_codes": [
+          "200",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminDeliveryController",
+    "package": "com.bazaarhub.backend.delivery.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/delivery/presentation/rest/AdminDeliveryController.java",
+    "base_path": "/api/v1/admin/delivery",
+    "tag_name": "Admin Delivery Management",
+    "tag_desc": "Endpoints for administrators to manage delivery personnel, verify KYC, assign shipments, and inspect delivery operations",
+    "class_sec": true,
+    "class_preauth": "hasRole('ADMIN')",
+    "endpoint_count": 11,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/boys",
+        "sub_path": "/boys",
+        "has_op": true,
+        "op_summary": "List delivery partners",
+        "op_description": "Retrieves paginated list of delivery partners with optional verification and availability filters",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/boys/{id}",
+        "sub_path": "/boys/{id}",
+        "has_op": true,
+        "op_summary": "Get delivery partner details",
+        "op_description": "Retrieves profile and operational details of a specific delivery partner",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/delivery/boys/{id}/verify",
+        "sub_path": "/boys/{id}/verify",
+        "has_op": true,
+        "op_summary": "Verify delivery partner KYC",
+        "op_description": "Approves or rejects delivery partner onboarding and KYC documentation",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/delivery/boys/{id}/status",
+        "sub_path": "/boys/{id}/status",
+        "has_op": true,
+        "op_summary": "Update delivery partner status",
+        "op_description": "Suspends or activates a delivery partner account",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/delivery/shipments",
+        "sub_path": "/shipments",
+        "has_op": true,
+        "op_summary": "Create shipment for seller sub-order",
+        "op_description": "Creates a shipment dispatch record for a confirmed seller order",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/shipments",
+        "sub_path": "/shipments",
+        "has_op": true,
+        "op_summary": "List shipments",
+        "op_description": "Retrieves paginated list of shipments with optional filters",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/shipments/{id}",
+        "sub_path": "/shipments/{id}",
+        "has_op": true,
+        "op_summary": "Get shipment details",
+        "op_description": "Retrieves shipment details by ID",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/delivery/assignments",
+        "sub_path": "/assignments",
+        "has_op": true,
+        "op_summary": "Assign delivery partner to shipment",
+        "op_description": "Manually assigns a shipment to an active, verified delivery partner",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/delivery/assignments/{id}/reassign",
+        "sub_path": "/assignments/{id}/reassign",
+        "has_op": true,
+        "op_summary": "Reassign delivery partner",
+        "op_description": "Reassigns a shipment from the previous delivery partner to a new delivery partner",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/assignments",
+        "sub_path": "/assignments",
+        "has_op": true,
+        "op_summary": "List all assignments",
+        "op_description": "Retrieves all delivery assignments with optional filtering by delivery boy, shipment, and status",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/delivery/tracking/{shipmentId}",
+        "sub_path": "/tracking/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get shipment tracking history",
+        "op_description": "Retrieves recorded GPS coordinate breadcrumb trail for a shipment",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerDeliveryTrackingController",
+    "package": "com.bazaarhub.backend.delivery.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/delivery/presentation/rest/CustomerDeliveryTrackingController.java",
+    "base_path": "/api/v1/delivery/tracking",
+    "tag_name": "Customer Delivery Tracking",
+    "tag_desc": "Endpoints for customers to track their package live location and estimated arrival time",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tracking/{shipmentId}",
+        "sub_path": "/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get latest live location of shipment",
+        "op_description": "Retrieves the most recent GPS location of the delivery partner",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tracking/{shipmentId}/estimate",
+        "sub_path": "/{shipmentId}/estimate",
+        "has_op": true,
+        "op_summary": "Get estimated time of arrival",
+        "op_description": "Retrieves distance and estimated delivery duration in minutes",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tracking/shipments/my",
+        "sub_path": "/shipments/my",
+        "has_op": true,
+        "op_summary": "Get my package shipments",
+        "op_description": "Retrieves paginated list of shipments for orders placed by authenticated customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "DeliveryBoyController",
+    "package": "com.bazaarhub.backend.delivery.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/delivery/presentation/rest/DeliveryBoyController.java",
+    "base_path": "/api/v1/delivery",
+    "tag_name": "Delivery Partner Operations",
+    "tag_desc": "Endpoints for delivery partners to manage profiles, accept deliveries, verify OTPs, and submit GPS tracking",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 15,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/onboard",
+        "sub_path": "/onboard",
+        "has_op": true,
+        "op_summary": "Onboard as delivery partner",
+        "op_description": "Registers authenticated user as a delivery partner and assigns ROLE_DELIVERY",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/profile",
+        "sub_path": "/profile",
+        "has_op": true,
+        "op_summary": "Get delivery partner profile",
+        "op_description": "Retrieves logged-in delivery partner's profile and operational status",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/delivery/profile",
+        "sub_path": "/profile",
+        "has_op": true,
+        "op_summary": "Update delivery partner profile",
+        "op_description": "Updates vehicle details",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/delivery/availability",
+        "sub_path": "/availability",
+        "has_op": true,
+        "op_summary": "Toggle availability status",
+        "op_description": "Switches status between AVAILABLE and OFFLINE",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/assignments",
+        "sub_path": "/assignments",
+        "has_op": true,
+        "op_summary": "List assigned deliveries",
+        "op_description": "Retrieves paginated deliveries assigned to the delivery partner",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/assignments/{id}",
+        "sub_path": "/assignments/{id}",
+        "has_op": true,
+        "op_summary": "Get delivery assignment details",
+        "op_description": "Retrieves shipment details, pickup address, delivery address, items, and COD amount",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/accept",
+        "sub_path": "/assignments/{id}/accept",
+        "has_op": true,
+        "op_summary": "Accept delivery assignment",
+        "op_description": "Accepts an assigned delivery task",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/reject",
+        "sub_path": "/assignments/{id}/reject",
+        "has_op": true,
+        "op_summary": "Reject delivery assignment",
+        "op_description": "Rejects an assigned delivery task with a mandatory reason",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/pickup",
+        "sub_path": "/assignments/{id}/pickup",
+        "has_op": true,
+        "op_summary": "Confirm parcel pickup",
+        "op_description": "Confirms package collected from seller store and transitions status to PICKED_UP",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/out-for-delivery",
+        "sub_path": "/assignments/{id}/out-for-delivery",
+        "has_op": true,
+        "op_summary": "Mark out for delivery",
+        "op_description": "Transitions shipment to OUT_FOR_DELIVERY and triggers OTP dispatch to customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/complete",
+        "sub_path": "/assignments/{id}/complete",
+        "has_op": true,
+        "op_summary": "Complete delivery with OTP",
+        "op_description": "Verifies customer OTP, records proof, settles COD cash collection if applicable, and completes delivery",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/assignments/{id}/fail",
+        "sub_path": "/assignments/{id}/fail",
+        "has_op": true,
+        "op_summary": "Report delivery failure",
+        "op_description": "Marks delivery attempt as failed with business reason and notes",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/tracking/location",
+        "sub_path": "/tracking/location",
+        "has_op": true,
+        "op_summary": "Update live GPS location",
+        "op_description": "Submits current coordinates for an active transit shipment",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/route-estimate/{shipmentId}",
+        "sub_path": "/route-estimate/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get route distance and duration estimate",
+        "op_description": "Calculates route distance and duration to delivery address via Google Maps",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/proof/upload",
+        "sub_path": "/proof/upload",
+        "has_op": true,
+        "op_summary": "Upload delivery proof image",
+        "op_description": "Uploads proof of delivery or failed delivery evidence to Cloudinary",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "AuthController",
+    "package": "com.bazaarhub.backend.identity.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/identity/presentation/rest/AuthController.java",
+    "base_path": "/api/v1/auth",
+    "tag_name": "Authentication",
+    "tag_desc": "Authentication, authorization, JWT token management, and user identity endpoints",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/register",
+        "sub_path": "/register",
+        "has_op": true,
+        "op_summary": "Register new customer account",
+        "op_description": "Creates a new user account with BCrypt password hashing and default customer role.",
+        "response_codes": [
+          "201",
+          "400",
+          "409"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/login",
+        "sub_path": "/login",
+        "has_op": true,
+        "op_summary": "Authenticate user credentials",
+        "op_description": "Authenticates user via email/mobile and password, generating a stateless signed JWT access token.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/auth/me",
+        "sub_path": "/me",
+        "has_op": true,
+        "op_summary": "Get current authenticated user profile",
+        "op_description": "Retrieves safe profile, assigned roles, and granular permissions of the authenticated user.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/logout",
+        "sub_path": "/logout",
+        "has_op": true,
+        "op_summary": "Logout user and deactivate device session",
+        "op_description": "Deactivates active device session in the database. Informs client to discard stateless JWT token.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/refresh",
+        "sub_path": "/refresh",
+        "has_op": true,
+        "op_summary": "Refresh JWT access token",
+        "op_description": "Endpoint reserved for refresh token rotation. Currently pending dedicated refresh_tokens table schema migration in Phase 2.",
+        "response_codes": [
+          "501"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/forgot-password",
+        "sub_path": "/forgot-password",
+        "has_op": true,
+        "op_summary": "Initiate password recovery",
+        "op_description": "Endpoint reserved for password reset initiation. Currently pending SMS/Email provider integration and token persistence schema in Phase 2.",
+        "response_codes": [
+          "501"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/auth/reset-password",
+        "sub_path": "/reset-password",
+        "has_op": true,
+        "op_summary": "Complete password reset",
+        "op_description": "Endpoint reserved for password reset completion. Currently pending SMS/Email provider integration and token persistence schema in Phase 2.",
+        "response_codes": [
+          "501"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "AdminInventoryController",
+    "package": "com.bazaarhub.backend.inventory.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/inventory/presentation/rest/AdminInventoryController.java",
+    "base_path": "/api/v1/admin/inventory",
+    "tag_name": "Admin Inventory",
+    "tag_desc": "Endpoints for platform administrators to oversee marketplace inventory, audit discrepancies, adjust counts, and inspect reservations",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('INVENTORY_AUDIT', 'ROLE_ADMIN')",
+    "endpoint_count": 8,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List all platform inventory",
+        "op_description": "Retrieves paginated inventory across all vendors. Supports filtering by sellerId, productId, LOW_STOCK, OUT_OF_STOCK, and keyword search.",
+        "response_codes": [
+          "200",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory/low-stock",
+        "sub_path": "/low-stock",
+        "has_op": true,
+        "op_summary": "List low-stock inventory",
+        "op_description": "Convenience filter returning all variants whose available stock is less than or equal to their safety stock threshold.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory/out-of-stock",
+        "sub_path": "/out-of-stock",
+        "has_op": true,
+        "op_summary": "List out-of-stock inventory",
+        "op_description": "Convenience filter returning all variants whose available stock is zero or depleted.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory/{variantId}",
+        "sub_path": "/{variantId}",
+        "has_op": true,
+        "op_summary": "Get inventory by variant ID",
+        "op_description": "Inspects stock levels, reserved quantities, and safety threshold for a specific SKU variant.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/inventory/{variantId}/adjustment",
+        "sub_path": "/{variantId}/adjustment",
+        "has_op": true,
+        "op_summary": "Authoritative stock adjustment",
+        "op_description": "Adjusts SKU variant stock count. Mandatory documented justification required. Creates an immutable ADJUSTMENT movement record recording the administrator.",
+        "response_codes": [
+          "200",
+          "400",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/inventory/{variantId}/safety-stock",
+        "sub_path": "/{variantId}/safety-stock",
+        "has_op": true,
+        "op_summary": "Update safety stock threshold",
+        "op_description": "Sets the safety threshold triggering low-stock alerts for the specified variant.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory/{variantId}/movements",
+        "sub_path": "/{variantId}/movements",
+        "has_op": true,
+        "op_summary": "View variant movement history",
+        "op_description": "Retrieves paginated audit trail of all historical stock movements for the SKU variant.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/inventory/reservations",
+        "sub_path": "/reservations",
+        "has_op": true,
+        "op_summary": "List stock reservations",
+        "op_description": "Inspects active, confirmed, released, or expired checkout reservations across the platform.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "InternalStockReservationController",
+    "package": "com.bazaarhub.backend.inventory.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/inventory/presentation/rest/InternalStockReservationController.java",
+    "base_path": "/api/v1/internal/inventory/reservations",
+    "tag_name": "Internal Stock Reservations",
+    "tag_desc": "Internal checkout service endpoints for locking, confirming, releasing, and expiring inventory reservations",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_ADMIN', 'INVENTORY_AUDIT')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/internal/inventory/reservations/reserve",
+        "sub_path": "/reserve",
+        "has_op": true,
+        "op_summary": "Reserve stock for checkout",
+        "op_description": "Locks stock for a unique checkout reference. Idempotent on repeated calls with matching quantity.",
+        "response_codes": [
+          "201",
+          "400",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/internal/inventory/reservations/confirm",
+        "sub_path": "/confirm",
+        "has_op": true,
+        "op_summary": "Confirm stock reservation",
+        "op_description": "Permanently deducts reserved stock and transitions status to CONFIRMED. Idempotent.",
+        "response_codes": [
+          "200",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/internal/inventory/reservations/release",
+        "sub_path": "/release",
+        "has_op": true,
+        "op_summary": "Release stock reservation",
+        "op_description": "Releases reserved stock back to available pool upon checkout cancellation or payment failure. Idempotent.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/internal/inventory/reservations/cancel",
+        "sub_path": "/cancel",
+        "has_op": true,
+        "op_summary": "Cancel stock reservation",
+        "op_description": "Transitions reservation to CANCELLED and returns reserved units to available stock. Idempotent.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/internal/inventory/reservations/sweep-expired",
+        "sub_path": "/sweep-expired",
+        "has_op": true,
+        "op_summary": "Sweep expired reservations",
+        "op_description": "Manually triggers reservation expiration sweep, releasing stock for all reservations whose TTL has elapsed.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "PublicStockAvailabilityController",
+    "package": "com.bazaarhub.backend.inventory.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/inventory/presentation/rest/PublicStockAvailabilityController.java",
+    "base_path": "/api/v1/products/{productId}/variants/{variantId}/availability",
+    "tag_name": "Public Product Availability",
+    "tag_desc": "Public endpoints for checking product SKU purchasability and in-stock/low-stock status without exposing internal quantities",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products/{productId}/variants/{variantId}/availability",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Check public stock availability",
+        "op_description": "Returns minimal stock status (IN_STOCK, LOW_STOCK, OUT_OF_STOCK) and purchasability flag for approved and active catalog products.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "SellerInventoryController",
+    "package": "com.bazaarhub.backend.inventory.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/inventory/presentation/rest/SellerInventoryController.java",
+    "base_path": "/api/v1/seller/inventory",
+    "tag_name": "Seller Inventory",
+    "tag_desc": "Endpoints for approved sellers to manage SKU stock levels, thresholds, physical count adjustments, and audit movements",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('INVENTORY_UPDATE', 'INVENTORY_READ', 'ROLE_SELLER')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/inventory",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller inventory",
+        "op_description": "Retrieves paginated stock levels for all product variants owned by the authenticated seller. Supports filtering by LOW_STOCK, OUT_OF_STOCK, and keyword search.",
+        "response_codes": [
+          "200",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/inventory/{variantId}",
+        "sub_path": "/{variantId}",
+        "has_op": true,
+        "op_summary": "Get variant inventory",
+        "op_description": "Retrieves current total, reserved, and available stock levels for a specific SKU variant owned by the seller.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/inventory/{variantId}/safety-stock",
+        "sub_path": "/{variantId}/safety-stock",
+        "has_op": true,
+        "op_summary": "Update safety stock threshold",
+        "op_description": "Configures the minimum threshold quantity triggering low-stock alerts for the specified variant.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/inventory/{variantId}/stock-in",
+        "sub_path": "/{variantId}/stock-in",
+        "has_op": true,
+        "op_summary": "Stock replenishment (Stock In)",
+        "op_description": "Adds physical stock units to the variant. Creates an immutable STOCK_IN movement audit record.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/inventory/{variantId}/stock-out",
+        "sub_path": "/{variantId}/stock-out",
+        "has_op": true,
+        "op_summary": "Stock reduction (Stock Out)",
+        "op_description": "Reduces physical stock units for shrinkage, damage, or transfer. Prevents reduction below active reservations. Creates an immutable STOCK_OUT movement audit record.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/inventory/{variantId}/adjustment",
+        "sub_path": "/{variantId}/adjustment",
+        "has_op": true,
+        "op_summary": "Physical stock adjustment",
+        "op_description": "Reconciles variant stock count to match physical warehouse inventory. Mandatory reason required. Creates an immutable ADJUSTMENT movement audit record.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/inventory/{variantId}/movements",
+        "sub_path": "/{variantId}/movements",
+        "has_op": true,
+        "op_summary": "View variant movement history",
+        "op_description": "Retrieves paginated audit log of all historical stock changes (STOCK_IN, STOCK_OUT, ADJUSTMENT, RESERVE, RELEASE) for this variant.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminNotificationController",
+    "package": "com.bazaarhub.backend.notification.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/notification/presentation/rest/AdminNotificationController.java",
+    "base_path": "/api/v1/admin/notifications",
+    "tag_name": "Admin Notifications & Templates",
+    "tag_desc": "Administrative oversight for notification dispatch, system logs, and notification templates",
+    "class_sec": true,
+    "class_preauth": "hasAuthority('ROLE_ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/notifications",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Query all notifications",
+        "op_description": "Retrieves a paginated list of all system notifications with optional filters by userId, channel, and status.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/notifications/send",
+        "sub_path": "/send",
+        "has_op": true,
+        "op_summary": "Send or test notification",
+        "op_description": "Manually dispatches an isolated notification across any channel (IN_APP, PUSH, EMAIL).",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/notifications/templates",
+        "sub_path": "/templates",
+        "has_op": true,
+        "op_summary": "List notification templates",
+        "op_description": "Retrieves a paginated list of notification templates configured in the system.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/notifications/templates/{id}",
+        "sub_path": "/templates/{id}",
+        "has_op": true,
+        "op_summary": "Get notification template by ID",
+        "op_description": "Retrieves details of a specific notification template.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/notifications/templates",
+        "sub_path": "/templates",
+        "has_op": true,
+        "op_summary": "Create notification template",
+        "op_description": "Registers a new notification template for a specific channel.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/admin/notifications/templates/{id}",
+        "sub_path": "/templates/{id}",
+        "has_op": true,
+        "op_summary": "Update notification template",
+        "op_description": "Updates content, subject, or active status of an existing template.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerNotificationController",
+    "package": "com.bazaarhub.backend.notification.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/notification/presentation/rest/CustomerNotificationController.java",
+    "base_path": "/api/v1/customer",
+    "tag_name": "Customer Notifications",
+    "tag_desc": "Customer notification inbox, read/unread tracking, and notification preferences",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/notifications",
+        "sub_path": "/notifications",
+        "has_op": true,
+        "op_summary": "List customer notifications",
+        "op_description": "Retrieves a paginated list of notification history for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/notifications/unread-count",
+        "sub_path": "/notifications/unread-count",
+        "has_op": true,
+        "op_summary": "Get unread notification count",
+        "op_description": "Returns the count of unread notifications for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/notifications/{id}/read",
+        "sub_path": "/notifications/{id}/read",
+        "has_op": true,
+        "op_summary": "Mark notification as read",
+        "op_description": "Marks a specific notification as read. Fails if the notification does not belong to the user.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/notifications/read-all",
+        "sub_path": "/notifications/read-all",
+        "has_op": true,
+        "op_summary": "Mark all notifications as read",
+        "op_description": "Marks all unread notifications for the authenticated customer as read.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/notification-preferences",
+        "sub_path": "/notification-preferences",
+        "has_op": true,
+        "op_summary": "Get customer notification preferences",
+        "op_description": "Retrieves communication channel preferences for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/customer/notification-preferences",
+        "sub_path": "/notification-preferences",
+        "has_op": true,
+        "op_summary": "Update customer notification preferences",
+        "op_description": "Updates communication channel preferences for the authenticated customer.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerNotificationController",
+    "package": "com.bazaarhub.backend.notification.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/notification/presentation/rest/SellerNotificationController.java",
+    "base_path": "/api/v1/seller",
+    "tag_name": "Seller Notifications",
+    "tag_desc": "Merchant seller notification inbox, read/unread tracking, and notification preferences",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/notifications",
+        "sub_path": "/notifications",
+        "has_op": true,
+        "op_summary": "List seller notifications",
+        "op_description": "Retrieves a paginated list of notification history for the authenticated merchant seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/notifications/unread-count",
+        "sub_path": "/notifications/unread-count",
+        "has_op": true,
+        "op_summary": "Get seller unread notification count",
+        "op_description": "Returns the count of unread notifications for the authenticated merchant seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/notifications/{id}/read",
+        "sub_path": "/notifications/{id}/read",
+        "has_op": true,
+        "op_summary": "Mark seller notification as read",
+        "op_description": "Marks a specific seller notification as read. Fails if the notification does not belong to the seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/notifications/read-all",
+        "sub_path": "/notifications/read-all",
+        "has_op": true,
+        "op_summary": "Mark all seller notifications as read",
+        "op_description": "Marks all unread notifications for the authenticated seller as read.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/notification-preferences",
+        "sub_path": "/notification-preferences",
+        "has_op": true,
+        "op_summary": "Get seller notification preferences",
+        "op_description": "Retrieves communication channel preferences for the authenticated seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/seller/notification-preferences",
+        "sub_path": "/notification-preferences",
+        "has_op": true,
+        "op_summary": "Update seller notification preferences",
+        "op_description": "Updates communication channel preferences for the authenticated seller.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminOrderController",
+    "package": "com.bazaarhub.backend.order.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/order/presentation/rest/AdminOrderController.java",
+    "base_path": "/api/v1/admin/orders",
+    "tag_name": "Admin Order Management",
+    "tag_desc": "Endpoints for administrators to inspect, filter, override, and audit orders across all marketplace participants",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ADMIN_ORDER_MANAGE', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/orders",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Search and list all orders",
+        "op_description": "Retrieves paginated list of all marketplace orders with optional filters by status and customer ID.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/orders/{orderId}",
+        "sub_path": "/{orderId}",
+        "has_op": true,
+        "op_summary": "Get complete order tree",
+        "op_description": "Retrieves full details of an order including all vendor sub-orders, items, shipping address, and audit history.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/orders/{orderId}/status",
+        "sub_path": "/{orderId}/status",
+        "has_op": true,
+        "op_summary": "Administratively update order status",
+        "op_description": "Updates order status with administrative audit remarks. Cascades cancellation and stock release if marked CANCELLED.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/orders/seller-orders",
+        "sub_path": "/seller-orders",
+        "has_op": true,
+        "op_summary": "List all seller sub-orders",
+        "op_description": "Retrieves paginated list of vendor sub-orders across all marketplace merchants with optional filters.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/orders/{orderId}/history",
+        "sub_path": "/{orderId}/history",
+        "has_op": true,
+        "op_summary": "Get order audit history",
+        "op_description": "Retrieves full chronology of status transitions recorded for an order.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerOrderController",
+    "package": "com.bazaarhub.backend.order.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/order/presentation/rest/CustomerOrderController.java",
+    "base_path": "/api/v1/orders",
+    "tag_name": "Customer Orders",
+    "tag_desc": "Endpoints for authenticated customers to create, view, and cancel their orders",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ORDER_CREATE', 'ORDER_READ', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/orders",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Place order from active cart",
+        "op_description": "Creates an order from the authenticated customer's shopping cart, reserves inventory, splits items by vendor, and converts the cart.",
+        "response_codes": [
+          "201",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/orders",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List customer orders",
+        "op_description": "Retrieves paginated list of orders placed by the authenticated customer with optional status filter.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/orders/{orderId}",
+        "sub_path": "/{orderId}",
+        "has_op": true,
+        "op_summary": "Get order details by ID",
+        "op_description": "Retrieves complete order tree including vendor sub-orders, order items, and audit history.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/orders/by-number/{orderNumber}",
+        "sub_path": "/by-number/{orderNumber}",
+        "has_op": true,
+        "op_summary": "Get order details by order number",
+        "op_description": "Retrieves complete order tree using the unique order number reference.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/orders/{orderId}/cancel",
+        "sub_path": "/{orderId}/cancel",
+        "has_op": true,
+        "op_summary": "Cancel an order",
+        "op_description": "Allows a customer to cancel an order in PENDING or CONFIRMED state. Releases reserved stock.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerOrderController",
+    "package": "com.bazaarhub.backend.order.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/order/presentation/rest/SellerOrderController.java",
+    "base_path": "/api/v1/seller/orders",
+    "tag_name": "Seller Order Management",
+    "tag_desc": "Endpoints for authenticated merchant sellers to view and manage their vendor-specific sub-orders",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('SELLER_ORDER_MANAGE', 'ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/orders",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller sub-orders",
+        "op_description": "Retrieves paginated list of sub-orders assigned to the authenticated merchant seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/orders/{sellerOrderId}",
+        "sub_path": "/{sellerOrderId}",
+        "has_op": true,
+        "op_summary": "Get seller sub-order by ID",
+        "op_description": "Retrieves sub-order details, ordered item lines, shipping destination, and fulfillment audit trail.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/orders/by-number/{subOrderNumber}",
+        "sub_path": "/by-number/{subOrderNumber}",
+        "has_op": true,
+        "op_summary": "Get seller sub-order by sub-order number",
+        "op_description": "Retrieves sub-order details using the unique sub-order reference number.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/orders/{sellerOrderId}/status",
+        "sub_path": "/{sellerOrderId}/status",
+        "has_op": true,
+        "op_summary": "Update seller sub-order fulfillment status",
+        "op_description": "Transitions sub-order status (e.g. CONFIRMED, PROCESSING, READY_FOR_PICKUP, SHIPPED, DELIVERED). Automatically synchronizes parent order status.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/orders/{sellerOrderId}/cancel",
+        "sub_path": "/{sellerOrderId}/cancel",
+        "has_op": true,
+        "op_summary": "Cancel seller sub-order",
+        "op_description": "Allows a seller to cancel their sub-order prior to shipment. Restores stock back to warehouse inventory.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminPaymentController",
+    "package": "com.bazaarhub.backend.payment.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/payment/presentation/rest/AdminPaymentController.java",
+    "base_path": "/api/v1/admin",
+    "tag_name": "Admin Payments & Refunds",
+    "tag_desc": "Endpoints for administrators to manage cash collection, initiate refunds, and audit payments",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PAYMENT_MANAGE', 'REFUND_MANAGE', 'ROLE_ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/payments/{paymentId}/cod-collect",
+        "sub_path": "/payments/{paymentId}/cod-collect",
+        "has_op": true,
+        "op_summary": "Collect Cash on Delivery payment",
+        "op_description": "Marks a pending COD transaction as CAPTURED and reconciles the order's payment status to PAID.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/payments/{paymentId}/refunds",
+        "sub_path": "/payments/{paymentId}/refunds",
+        "has_op": true,
+        "op_summary": "Initiate payment refund",
+        "op_description": "Executes full or partial refund against a captured payment through Razorpay or manual settlement.",
+        "response_codes": [
+          "201",
+          "400",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/payments",
+        "sub_path": "/payments",
+        "has_op": true,
+        "op_summary": "List all payments",
+        "op_description": "Returns a paginated list of all payments across all customers and orders.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/refunds",
+        "sub_path": "/refunds",
+        "has_op": true,
+        "op_summary": "List all refunds",
+        "op_description": "Returns a paginated list of all refunds in the platform.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/refunds/{refundId}",
+        "sub_path": "/refunds/{refundId}",
+        "has_op": true,
+        "op_summary": "Get refund details by ID",
+        "op_description": "Retrieves full details of a specific refund record.",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerPaymentController",
+    "package": "com.bazaarhub.backend.payment.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/payment/presentation/rest/CustomerPaymentController.java",
+    "base_path": "/api/v1/payments",
+    "tag_name": "Customer Payments",
+    "tag_desc": "Endpoints for initiating, verifying, and checking payments for customer orders",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('PAYMENT_CREATE', 'PAYMENT_READ', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 8,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/payments/razorpay/create-order",
+        "sub_path": "/razorpay/create-order",
+        "has_op": true,
+        "op_summary": "Initiate Razorpay checkout order",
+        "op_description": "Creates a Razorpay gateway order with server-side authoritative amount calculation.",
+        "response_codes": [
+          "201",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/payments/razorpay/verify",
+        "sub_path": "/razorpay/verify",
+        "has_op": true,
+        "op_summary": "Verify Razorpay checkout signature",
+        "op_description": "Verifies the HMAC SHA256 signature returned by Razorpay Checkout SDK, marks payment CAPTURED, and confirms the order.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/payments/cod/select",
+        "sub_path": "/cod/select",
+        "has_op": true,
+        "op_summary": "Select Cash on Delivery (COD)",
+        "op_description": "Selects Cash on Delivery as the payment method for an order and confirms the order.",
+        "response_codes": [
+          "200",
+          "400",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/payments/{paymentId}",
+        "sub_path": "/{paymentId}",
+        "has_op": true,
+        "op_summary": "Get payment details by ID",
+        "op_description": "Retrieves full payment details including transaction attempts for the owner or administrator.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/payments/order/{orderId}",
+        "sub_path": "/order/{orderId}",
+        "has_op": true,
+        "op_summary": "Get payment details by Order ID",
+        "op_description": "Retrieves payment details associated with an order for the owner or administrator.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/payments",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List customer payments",
+        "op_description": "Returns a paginated list of payment summaries belonging to the authenticated customer.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/payments/{paymentId}/refunds",
+        "sub_path": "/{paymentId}/refunds",
+        "has_op": true,
+        "op_summary": "List refunds for a payment",
+        "op_description": "Lists all refund attempts associated with a payment.",
+        "response_codes": [
+          "200",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/payments/refunds",
+        "sub_path": "/refunds",
+        "has_op": true,
+        "op_summary": "List customer refunds",
+        "op_description": "Returns paginated list of all refunds requested for the customer's orders.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "PaymentWebhookController",
+    "package": "com.bazaarhub.backend.payment.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/payment/presentation/rest/PaymentWebhookController.java",
+    "base_path": "/api/v1/payments/webhooks",
+    "tag_name": "Payment Webhooks",
+    "tag_desc": "Asynchronous gateway webhook receivers for automated payment and refund reconciliation",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/payments/webhooks/razorpay",
+        "sub_path": "/razorpay",
+        "has_op": true,
+        "op_summary": "Receive Razorpay webhook event",
+        "op_description": "Processes asynchronous events such as payment.captured, payment.failed, and refund.processed.",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "AdminReviewController",
+    "package": "com.bazaarhub.backend.review.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/review/presentation/rest/AdminReviewController.java",
+    "base_path": "/api/v1/admin/reviews",
+    "tag_name": "Admin Review Moderation",
+    "tag_desc": "Admin product review moderation and management endpoints",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 4,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/reviews",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get all reviews",
+        "op_description": "Retrieves paginated reviews across the entire platform, with optional filter by status",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/reviews/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get review details",
+        "op_description": "Retrieves full review details by ID for admin audit",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/reviews/{id}/moderate",
+        "sub_path": "/{id}/moderate",
+        "has_op": true,
+        "op_summary": "Moderate product review",
+        "op_description": "Approves or rejects a customer review",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/admin/reviews/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Delete review",
+        "op_description": "Permanently deletes a product review from the platform",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerReviewController",
+    "package": "com.bazaarhub.backend.review.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/review/presentation/rest/CustomerReviewController.java",
+    "base_path": "/api/v1/customer/reviews",
+    "tag_name": "Customer Reviews",
+    "tag_desc": "Customer review creation, editing, deletion and history management",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/reviews",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create product review",
+        "op_description": "Submits a rating and review for a purchased and delivered product",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404",
+          "409",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/customer/reviews/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Update product review",
+        "op_description": "Updates rating, headline, review text, or images of customer's own review",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/customer/reviews/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Delete product review",
+        "op_description": "Deletes customer's own review",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/reviews",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get customer reviews",
+        "op_description": "Retrieves paginated history of reviews submitted by the authenticated customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/reviews/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get review by ID",
+        "op_description": "Retrieves a specific review submitted by the authenticated customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "PublicReviewController",
+    "package": "com.bazaarhub.backend.review.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/review/presentation/rest/PublicReviewController.java",
+    "base_path": "/api/v1/products/{productId}",
+    "tag_name": "Product Reviews (Public)",
+    "tag_desc": "Public customer review browsing and rating summary endpoints",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 2,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products/{productId}/reviews",
+        "sub_path": "/reviews",
+        "has_op": true,
+        "op_summary": "Get public product reviews",
+        "op_description": "Retrieves paginated approved reviews for a product with privacy-masked customer names and optional star rating filter",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/products/{productId}/rating-summary",
+        "sub_path": "/rating-summary",
+        "has_op": true,
+        "op_summary": "Get product rating summary",
+        "op_description": "Retrieves real-time aggregated rating statistics, star score breakdown, and percentage distribution for a product",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "SellerReviewController",
+    "package": "com.bazaarhub.backend.review.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/review/presentation/rest/SellerReviewController.java",
+    "base_path": "/api/v1/seller/reviews",
+    "tag_name": "Seller Reviews",
+    "tag_desc": "Seller product review visibility and monitoring endpoints",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/reviews",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get seller product reviews",
+        "op_description": "Retrieves paginated reviews for products belonging exclusively to the authenticated seller",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "ProductDiscoveryController",
+    "package": "com.bazaarhub.backend.search.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/search/presentation/rest/ProductDiscoveryController.java",
+    "base_path": "/api/v1/discovery",
+    "tag_name": "Product Discovery & Recommendations",
+    "tag_desc": "Rule-based product discovery channels for home page and product detail cross-selling",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 4,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/discovery/featured",
+        "sub_path": "/featured",
+        "has_op": true,
+        "op_summary": "Get featured products",
+        "op_description": "Surfaces top approved active products with active variants. Note: Current schema does not contain an is_featured column; rule-based prioritization by update recency is applied.",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/discovery/new-arrivals",
+        "sub_path": "/new-arrivals",
+        "has_op": true,
+        "op_summary": "Get new arrival products",
+        "op_description": "Returns recently created approved active catalog products sorted by creation timestamp descending.",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/discovery/related/{productId}",
+        "sub_path": "/related/{productId}",
+        "has_op": true,
+        "op_summary": "Get related products",
+        "op_description": "Recommends products from the same category or brand as the target product, strictly excluding the target product itself.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/discovery/by-category/{categoryId}",
+        "sub_path": "/by-category/{categoryId}",
+        "has_op": true,
+        "op_summary": "Get recommended products by category",
+        "op_description": "Returns active products belonging to the selected category and its active subcategories.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "ProductSearchController",
+    "package": "com.bazaarhub.backend.search.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/search/presentation/rest/ProductSearchController.java",
+    "base_path": "/api/v1/search",
+    "tag_name": "Product Search & Catalog Discovery",
+    "tag_desc": "Public endpoints for searching products, filtering by brand/category/price/stock, and browsing categories",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 2,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/search/products",
+        "sub_path": "/products",
+        "has_op": true,
+        "op_summary": "Search public catalog products",
+        "op_description": "Multi-criteria search over active products and variants. Supports keyword search (name, description, SKU), category/subcategory filtering, brand and seller filtering, price range, in-stock availability, safe sorting, and pagination.",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/search/categories/{categoryId}/products",
+        "sub_path": "/categories/{categoryId}/products",
+        "has_op": true,
+        "op_summary": "Browse products by category",
+        "op_description": "Category-based product discovery including active subcategories. Supports combining with keyword, price range, stock, brand, seller filters, and sorting.",
+        "response_codes": [
+          "200",
+          "400",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "AdminSellerController",
+    "package": "com.bazaarhub.backend.seller.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/seller/presentation/rest/AdminSellerController.java",
+    "base_path": "/api/v1/admin/sellers",
+    "tag_name": "Admin Seller Management",
+    "tag_desc": "Administrative endpoints for auditing seller applications, KYC documents, approval, rejection, and suspension",
+    "class_sec": true,
+    "class_preauth": "hasAuthority('SELLER_MANAGE') or hasRole('ADMIN')",
+    "endpoint_count": 6,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/sellers",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller applications with filtering and pagination",
+        "op_description": "Retrieves a paginated list of seller applications filtered optionally by approval or verification status.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/sellers/{sellerId}",
+        "sub_path": "/{sellerId}",
+        "has_op": true,
+        "op_summary": "Get full seller application dossier",
+        "op_description": "Retrieves complete seller application details, user contact, storefront, submitted KYC documents, and settlement bank accounts.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/sellers/{sellerId}/approve",
+        "sub_path": "/{sellerId}/approve",
+        "has_op": true,
+        "op_summary": "Approve seller application",
+        "op_description": "Approves a pending seller application. Automatically assigns ROLE_SELLER to the merchant while preserving customer privileges, and activates their storefront.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/sellers/{sellerId}/reject",
+        "sub_path": "/{sellerId}/reject",
+        "has_op": true,
+        "op_summary": "Reject seller application",
+        "op_description": "Rejects a seller application. Requires a detailed rejection justification.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/sellers/{sellerId}/suspend",
+        "sub_path": "/{sellerId}/suspend",
+        "has_op": true,
+        "op_summary": "Suspend seller account and storefront",
+        "op_description": "Suspends an active seller account and halts their storefront operations.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/sellers/{sellerId}/verify-documents",
+        "sub_path": "/{sellerId}/verify-documents",
+        "has_op": true,
+        "op_summary": "Review and verify KYC document",
+        "op_description": "Marks a specific seller KYC document as VERIFIED or REJECTED. When all documents are verified, the seller verification status automatically updates to VERIFIED.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerBankController",
+    "package": "com.bazaarhub.backend.seller.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/seller/presentation/rest/SellerBankController.java",
+    "base_path": "/api/v1/sellers/me/bank",
+    "tag_name": "Seller Settlement Bank Accounts",
+    "tag_desc": "Endpoints for managing settlement bank accounts. Banking data is encrypted at rest using AES-256-GCM and responses return masked details only.",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/sellers/me/bank",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Submit settlement bank account",
+        "op_description": "Submits a bank account for seller payouts. Sensitive account number and IFSC are encrypted using AES-256-GCM. Response returns masked details only.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/bank",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller bank accounts",
+        "op_description": "Retrieves all configured settlement bank accounts for the authenticated seller with masked account numbers.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/bank/{bankId}",
+        "sub_path": "/{bankId}",
+        "has_op": true,
+        "op_summary": "Get seller bank account by ID",
+        "op_description": "Retrieves a single settlement bank account with masked numbers. Enforces ownership: sellers cannot access accounts of other merchants.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerController",
+    "package": "com.bazaarhub.backend.seller.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/seller/presentation/rest/SellerController.java",
+    "base_path": "/api/v1/sellers",
+    "tag_name": "Seller Onboarding & Management",
+    "tag_desc": "Endpoints for merchant onboarding application, profile management, and status tracking",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 4,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/sellers/onboarding",
+        "sub_path": "/onboarding",
+        "has_op": true,
+        "op_summary": "Submit seller onboarding application",
+        "op_description": "Submits a new seller application for the authenticated customer account. Initial verification and approval statuses are set to PENDING.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me",
+        "sub_path": "/me",
+        "has_op": true,
+        "op_summary": "Get current seller profile",
+        "op_description": "Retrieves the authenticated merchant's seller profile, business contact details, and approval status.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/sellers/me",
+        "sub_path": "/me",
+        "has_op": true,
+        "op_summary": "Update seller business profile",
+        "op_description": "Updates permitted merchant business details. System-controlled approval and audit fields cannot be modified.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/status",
+        "sub_path": "/me/status",
+        "has_op": true,
+        "op_summary": "Get seller onboarding lifecycle status",
+        "op_description": "Fetches a quick overview of seller verification, approval, store readiness, and document completion status.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerDocumentController",
+    "package": "com.bazaarhub.backend.seller.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/seller/presentation/rest/SellerDocumentController.java",
+    "base_path": "/api/v1/sellers/me/documents",
+    "tag_name": "Seller KYC Documents",
+    "tag_desc": "Endpoints for submitting and managing merchant verification documents",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/sellers/me/documents",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Submit KYC verification document",
+        "op_description": "Submits a verification document (e.g., GST Certificate, PAN, Business License) for compliance review. Initial status is PENDING.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/documents",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller KYC documents",
+        "op_description": "Retrieves all KYC verification documents submitted by the authenticated merchant.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/documents/{documentId}",
+        "sub_path": "/{documentId}",
+        "has_op": true,
+        "op_summary": "Get seller KYC document by ID",
+        "op_description": "Retrieves a single KYC document. Enforces strict tenant ownership: merchants cannot view documents of other sellers.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "StoreController",
+    "package": "com.bazaarhub.backend.seller.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/seller/presentation/rest/StoreController.java",
+    "base_path": "/api/v1/sellers/me/store",
+    "tag_name": "Storefront Management",
+    "tag_desc": "Endpoints for creating and configuring the merchant's storefront",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 3,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/sellers/me/store",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create merchant storefront",
+        "op_description": "Creates a new storefront for the authenticated seller. Initial status is INACTIVE and activates upon administrator approval.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/sellers/me/store",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get merchant storefront",
+        "op_description": "Retrieves the storefront details configured for the authenticated seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/sellers/me/store",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Update merchant storefront",
+        "op_description": "Updates permitted storefront fields (name, description, logo, banner). Store activation status remains administrator-controlled.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "HealthController",
+    "package": "com.bazaarhub.backend.shared.presentation.rest.health",
+    "file": "src/main/java/com/bazaarhub/backend/shared/presentation/rest/health/HealthController.java",
+    "base_path": "/api/v1",
+    "tag_name": "Health & Monitoring",
+    "tag_desc": "Operational health checks and platform monitoring",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 1,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/health",
+        "sub_path": "/health",
+        "has_op": true,
+        "op_summary": "Platform health check",
+        "op_description": "Returns the operational readiness and health status of the BazaarHub backend service.",
+        "response_codes": [
+          "200"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "AdminShipmentController",
+    "package": "com.bazaarhub.backend.shipping.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/shipping/presentation/rest/AdminShipmentController.java",
+    "base_path": "/api/v1/admin/shipments",
+    "tag_name": "Admin Shipment Management",
+    "tag_desc": "Endpoints for administrators to audit, monitor, and manage platform logistics shipments",
+    "class_sec": true,
+    "class_preauth": "hasRole('ADMIN')",
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/shipments",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List all platform shipments",
+        "op_description": "Retrieves paginated shipments with optional keyword search and filters by status, seller, and customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/shipments/{shipmentId}",
+        "sub_path": "/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get shipment details",
+        "op_description": "Retrieves full administrative shipment record with all related entities",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/shipments/active",
+        "sub_path": "/active",
+        "has_op": true,
+        "op_summary": "List active in-flight shipments",
+        "op_description": "Retrieves shipments in READY_FOR_PICKUP, PICKED_UP, IN_TRANSIT, or OUT_FOR_DELIVERY status",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/shipments/failed",
+        "sub_path": "/failed",
+        "has_op": true,
+        "op_summary": "List failed shipments",
+        "op_description": "Retrieves shipments where delivery attempt failed and requires operational review or re-dispatch",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/shipments/{shipmentId}/cancel",
+        "sub_path": "/{shipmentId}/cancel",
+        "has_op": true,
+        "op_summary": "Cancel shipment",
+        "op_description": "Administratively cancels an active shipment and its assigned delivery task",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerShipmentController",
+    "package": "com.bazaarhub.backend.shipping.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/shipping/presentation/rest/CustomerShipmentController.java",
+    "base_path": "/api/v1/customer/shipments",
+    "tag_name": "Customer Shipments",
+    "tag_desc": "Endpoints for authenticated customers to view their package shipments and deliveries",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ORDER_READ', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 2,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/shipments",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List customer shipments",
+        "op_description": "Retrieves paginated list of all package shipments for the authenticated customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/shipments/{shipmentId}",
+        "sub_path": "/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get customer shipment details",
+        "op_description": "Retrieves details of a specific package shipment owned by the authenticated customer",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "InternalShipmentController",
+    "package": "com.bazaarhub.backend.shipping.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/shipping/presentation/rest/InternalShipmentController.java",
+    "base_path": "/api/v1/shipments",
+    "tag_name": "Internal Shipping Operations",
+    "tag_desc": "Endpoints for creating and managing internal shipments, parcel preparation, and shipping rate estimation",
+    "class_sec": true,
+    "class_preauth": null,
+    "endpoint_count": 5,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/shipments",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Create shipment for seller sub-order",
+        "op_description": "Generates a unique internal shipment and tracking number for an eligible confirmed seller order",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/{shipmentId}",
+        "sub_path": "/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get shipment details by ID",
+        "op_description": "Retrieves full shipment details, addresses, items, and logistics status",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/order/{orderId}",
+        "sub_path": "/order/{orderId}",
+        "has_op": true,
+        "op_summary": "Get shipments for customer order",
+        "op_description": "Retrieves all vendor-wise shipments associated with a multi-vendor customer order",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/shipments/{shipmentId}/ready-for-pickup",
+        "sub_path": "/{shipmentId}/ready-for-pickup",
+        "has_op": true,
+        "op_summary": "Mark parcel ready for pickup",
+        "op_description": "Seller confirms parcel packaging and marks shipment status as READY_FOR_PICKUP",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/shipments/rate-quote",
+        "sub_path": "/rate-quote",
+        "has_op": true,
+        "op_summary": "Calculate shipping rate quote",
+        "op_description": "Estimates shipping fee based on distance, weight, and order value without modifying database",
+        "response_codes": [
+          "200",
+          "400"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      }
+    ]
+  },
+  {
+    "class_name": "SellerShipmentController",
+    "package": "com.bazaarhub.backend.shipping.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/shipping/presentation/rest/SellerShipmentController.java",
+    "base_path": "/api/v1/shipments/seller",
+    "tag_name": "Seller Shipment Operations",
+    "tag_desc": "Endpoints for merchant sellers to view and manage dispatch shipments for their orders",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('SELLER_ORDER_MANAGE', 'ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 2,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/seller",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller shipments",
+        "op_description": "Retrieves paginated list of shipments for the authenticated seller's store",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/seller/{shipmentId}",
+        "sub_path": "/{shipmentId}",
+        "has_op": true,
+        "op_summary": "Get seller shipment details",
+        "op_description": "Retrieves complete shipment information for a specific store dispatch",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "ShipmentTrackingController",
+    "package": "com.bazaarhub.backend.shipping.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/shipping/presentation/rest/ShipmentTrackingController.java",
+    "base_path": "/api/v1/shipments",
+    "tag_name": "Shipment Tracking",
+    "tag_desc": "Endpoints for public tracking number lookup and authenticated shipment history",
+    "class_sec": false,
+    "class_preauth": null,
+    "endpoint_count": 2,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/track/{trackingNumber}",
+        "sub_path": "/track/{trackingNumber}",
+        "has_op": true,
+        "op_summary": "Public shipment tracking lookup",
+        "op_description": "Publicly accessible endpoint to check shipment status and milestones by tracking number without revealing sensitive customer details",
+        "response_codes": [
+          "200",
+          "404"
+        ],
+        "has_sec": false,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/shipments/{shipmentId}/tracking-history",
+        "sub_path": "/{shipmentId}/tracking-history",
+        "has_op": true,
+        "op_summary": "Get full tracking history",
+        "op_description": "Authenticated endpoint to retrieve full transit milestones and GPS breadcrumb trail",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "AdminSupportController",
+    "package": "com.bazaarhub.backend.support.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/support/presentation/rest/AdminSupportController.java",
+    "base_path": "/api/v1/admin/support/tickets",
+    "tag_name": "Admin Support & Helpdesk Desk",
+    "tag_desc": "Administrative oversight for ticket triage, agent assignment, private internal notes, and SLA tracking",
+    "class_sec": true,
+    "class_preauth": "hasAuthority('ROLE_ADMIN')",
+    "endpoint_count": 9,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/support/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Query all support tickets",
+        "op_description": "Retrieves a paginated list of all system tickets with multi-criteria filtering across category, status, priority, order, user, and agent.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/support/tickets/stats",
+        "sub_path": "/stats",
+        "has_op": true,
+        "op_summary": "Get ticket lifecycle metrics",
+        "op_description": "Returns aggregated count of tickets across lifecycle states (OPEN, IN_PROGRESS, WAITING_FOR_CUSTOMER, RESOLVED, CLOSED).",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/support/tickets/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get complete ticket details",
+        "op_description": "Retrieves full details of a ticket including assigned agent and SLA timestamps.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/support/tickets/{id}/assign",
+        "sub_path": "/{id}/assign",
+        "has_op": true,
+        "op_summary": "Assign ticket to support agent",
+        "op_description": "Assigns or reassigns the ticket to an agent user and automatically moves ticket status from OPEN to IN_PROGRESS.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/support/tickets/{id}/status",
+        "sub_path": "/{id}/status",
+        "has_op": true,
+        "op_summary": "Update ticket lifecycle status",
+        "op_description": "Transitions ticket status to IN_PROGRESS, WAITING_FOR_CUSTOMER, RESOLVED, or CLOSED.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404",
+          "422"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/admin/support/tickets/{id}/priority",
+        "sub_path": "/{id}/priority",
+        "has_op": true,
+        "op_summary": "Update ticket priority",
+        "op_description": "Escalates or de-escalates ticket urgency (LOW, MEDIUM, HIGH, URGENT).",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/support/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Post agent reply or private internal note",
+        "op_description": "Appends a message to the ticket. If isInternal is true, the message is a private note visible only to support agents and admins.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/admin/support/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Get all ticket messages (including internal notes)",
+        "op_description": "Retrieves complete conversation timeline for staff, including private internal agent notes.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": false,
+        "auth_principal_hidden": false
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/admin/support/tickets/attachments",
+        "sub_path": "/attachments",
+        "has_op": true,
+        "op_summary": "Upload staff attachment",
+        "op_description": "Uploads an attachment to Cloudinary for support response.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerSupportController",
+    "package": "com.bazaarhub.backend.support.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/support/presentation/rest/CustomerSupportController.java",
+    "base_path": "/api/v1/customer/tickets",
+    "tag_name": "Customer Support & Tickets",
+    "tag_desc": "Endpoints for retail customers to create support tickets, view history, and exchange messages with support",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Submit support ticket",
+        "op_description": "Creates a new customer support ticket with an assigned tracking number and automated confirmation notification.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List customer tickets",
+        "op_description": "Retrieves a paginated list of tickets logged by the authenticated customer, optionally filtered by status.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/tickets/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get ticket details",
+        "op_description": "Retrieves full details of a customer's own support ticket. Throws 403 Forbidden if not the ticket owner.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Reply to ticket",
+        "op_description": "Appends a new message or inquiry update to the customer's open ticket conversation.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Get ticket messages",
+        "op_description": "Retrieves the public conversation timeline for a support ticket. Excludes internal staff notes.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/customer/tickets/{id}/close",
+        "sub_path": "/{id}/close",
+        "has_op": true,
+        "op_summary": "Close ticket",
+        "op_description": "Allows customer to close their own support ticket if their inquiry is satisfied.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/tickets/attachments",
+        "sub_path": "/attachments",
+        "has_op": true,
+        "op_summary": "Upload support attachment",
+        "op_description": "Uploads a screenshot, proof of defect, or document to Cloudinary and returns the public asset URL.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "DeliverySupportController",
+    "package": "com.bazaarhub.backend.support.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/support/presentation/rest/DeliverySupportController.java",
+    "base_path": "/api/v1/delivery/tickets",
+    "tag_name": "Delivery Partner Support & Tickets",
+    "tag_desc": "Endpoints for delivery personnel to report courier routing issues, customer unreachable, and delivery obstacles",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_DELIVERY', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Submit delivery partner support ticket",
+        "op_description": "Creates a new ticket regarding transit obstacles, customer unreachable, or delivery address issues.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List delivery partner tickets",
+        "op_description": "Retrieves tickets logged by the authenticated delivery personnel.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tickets/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get delivery ticket details",
+        "op_description": "Retrieves details of a delivery personnel's own support ticket.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Reply to delivery ticket",
+        "op_description": "Appends an update or proof of delivery obstacle to the ticket.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/delivery/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Get delivery ticket messages",
+        "op_description": "Retrieves conversation messages for a delivery partner ticket.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/delivery/tickets/{id}/close",
+        "sub_path": "/{id}/close",
+        "has_op": true,
+        "op_summary": "Close delivery ticket",
+        "op_description": "Allows delivery partner to close ticket once the delivery exception is cleared.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/delivery/tickets/attachments",
+        "sub_path": "/attachments",
+        "has_op": true,
+        "op_summary": "Upload delivery obstacle proof",
+        "op_description": "Uploads door locked photo, street view, or damaged package proof to Cloudinary.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "SellerSupportController",
+    "package": "com.bazaarhub.backend.support.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/support/presentation/rest/SellerSupportController.java",
+    "base_path": "/api/v1/seller/tickets",
+    "tag_name": "Seller Support & Tickets",
+    "tag_desc": "Endpoints for merchant sellers to log business disputes, commission/payout inquiries, and converse with platform support",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Submit merchant support ticket",
+        "op_description": "Creates a new vendor support ticket (e.g. regarding payouts, store approvals, catalog disputes).",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/tickets",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "List seller tickets",
+        "op_description": "Retrieves a paginated list of tickets logged by the authenticated merchant seller.",
+        "response_codes": [
+          "200",
+          "401",
+          "403"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/tickets/{id}",
+        "sub_path": "/{id}",
+        "has_op": true,
+        "op_summary": "Get seller ticket details",
+        "op_description": "Retrieves details of a seller's own support ticket. Throws 403 Forbidden if not the ticket owner.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Reply to seller ticket",
+        "op_description": "Appends a new message or inquiry update to the merchant ticket conversation.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/seller/tickets/{id}/messages",
+        "sub_path": "/{id}/messages",
+        "has_op": true,
+        "op_summary": "Get seller ticket messages",
+        "op_description": "Retrieves the public conversation timeline for a seller ticket.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PatchMapping",
+        "path": "/api/v1/seller/tickets/{id}/close",
+        "sub_path": "/{id}/close",
+        "has_op": true,
+        "op_summary": "Close seller ticket",
+        "op_description": "Allows merchant to close their own support ticket once resolved.",
+        "response_codes": [
+          "200",
+          "401",
+          "403",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/seller/tickets/attachments",
+        "sub_path": "/attachments",
+        "has_op": true,
+        "op_summary": "Upload seller attachment",
+        "op_description": "Uploads invoice copy, tax documents, or dispute screenshots to Cloudinary.",
+        "response_codes": [
+          "200",
+          "400",
+          "401",
+          "403",
+          "500"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  },
+  {
+    "class_name": "CustomerWishlistController",
+    "package": "com.bazaarhub.backend.wishlist.presentation.rest",
+    "file": "src/main/java/com/bazaarhub/backend/wishlist/presentation/rest/CustomerWishlistController.java",
+    "base_path": "/api/v1/customer/wishlist",
+    "tag_name": "Customer Wishlist Management",
+    "tag_desc": "Endpoints for authenticated customers to save products for later, organize wishlist, and manage saved items",
+    "class_sec": true,
+    "class_preauth": "hasAnyAuthority('WISHLIST_READ', 'WISHLIST_UPDATE', 'ROLE_CUSTOMER', 'ROLE_ADMIN')",
+    "endpoint_count": 7,
+    "endpoints": [
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/wishlist",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Get customer wishlist",
+        "op_description": "Retrieves the authenticated customer's wishlist metadata. Automatically creates a default wishlist if one does not exist.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PutMapping",
+        "path": "/api/v1/customer/wishlist",
+        "sub_path": "",
+        "has_op": true,
+        "op_summary": "Rename customer wishlist",
+        "op_description": "Updates the display name of the authenticated customer's wishlist.",
+        "response_codes": [
+          "200",
+          "400",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/wishlist/items",
+        "sub_path": "/items",
+        "has_op": true,
+        "op_summary": "Get wishlist items",
+        "op_description": "Retrieves paginated product items saved in the customer's wishlist, ordered by most recently added.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "PostMapping",
+        "path": "/api/v1/customer/wishlist/items",
+        "sub_path": "/items",
+        "has_op": true,
+        "op_summary": "Add product to wishlist",
+        "op_description": "Adds an eligible, active catalog product to the customer's wishlist. Prevents duplicate entries safely under concurrency.",
+        "response_codes": [
+          "201",
+          "400",
+          "401",
+          "404",
+          "409"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/customer/wishlist/items/{productId}",
+        "sub_path": "/items/{productId}",
+        "has_op": true,
+        "op_summary": "Remove product from wishlist",
+        "op_description": "Removes a specific product from the authenticated customer's wishlist.",
+        "response_codes": [
+          "200",
+          "401",
+          "404"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "GetMapping",
+        "path": "/api/v1/customer/wishlist/items/{productId}/exists",
+        "sub_path": "/items/{productId}/exists",
+        "has_op": true,
+        "op_summary": "Check if product is in wishlist",
+        "op_description": "Checks whether a specific catalog product is currently in the authenticated customer's wishlist.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      },
+      {
+        "method_name": "unknown",
+        "verb": "DeleteMapping",
+        "path": "/api/v1/customer/wishlist/items",
+        "sub_path": "/items",
+        "has_op": true,
+        "op_summary": "Clear customer wishlist",
+        "op_description": "Removes all saved products from the authenticated customer's wishlist.",
+        "response_codes": [
+          "200",
+          "401"
+        ],
+        "has_sec": true,
+        "has_auth_principal": true,
+        "auth_principal_hidden": true
+      }
+    ]
+  }
+]

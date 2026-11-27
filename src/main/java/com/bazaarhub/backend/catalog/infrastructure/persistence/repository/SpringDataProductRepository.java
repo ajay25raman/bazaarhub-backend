@@ -26,6 +26,8 @@ public interface SpringDataProductRepository extends JpaRepository<ProductEntity
 
     Page<ProductEntity> findBySellerId(Long sellerId, Pageable pageable);
 
+    Page<ProductEntity> findByStatusAndApprovalStatus(ProductStatus status, ProductApprovalStatus approvalStatus, Pageable pageable);
+
     Page<ProductEntity> findByCategoryIdAndStatusAndApprovalStatus(Long categoryId, ProductStatus status, ProductApprovalStatus approvalStatus, Pageable pageable);
 
     Page<ProductEntity> findByBrandIdAndStatusAndApprovalStatus(Long brandId, ProductStatus status, ProductApprovalStatus approvalStatus, Pageable pageable);

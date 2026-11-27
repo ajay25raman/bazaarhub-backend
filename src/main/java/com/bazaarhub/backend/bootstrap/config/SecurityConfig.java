@@ -3,6 +3,7 @@ package com.bazaarhub.backend.bootstrap.config;
 import com.bazaarhub.backend.identity.infrastructure.security.CustomAccessDeniedHandler;
 import com.bazaarhub.backend.identity.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.bazaarhub.backend.identity.infrastructure.security.JwtAuthenticationFilter;
+import com.bazaarhub.backend.shared.infrastructure.ratelimit.RateLimitingFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -44,6 +46,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
@@ -51,9 +54,11 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          RateLimitingFilter rateLimitingFilter,
                           JwtAuthenticationEntryPoint authenticationEntryPoint,
                           CustomAccessDeniedHandler accessDeniedHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitingFilter = rateLimitingFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
     }
@@ -107,27 +112,154 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
 
-                // Public Catalog, Brand & Product GET Endpoints (Read-only)
+                // Public Catalog, Brand, Product, Search & Discovery GET Endpoints (Read-only)
                 .requestMatchers(HttpMethod.GET,
                     "/api/v1/categories",
                     "/api/v1/categories/**",
                     "/api/v1/brands",
                     "/api/v1/brands/**",
                     "/api/v1/products",
-                    "/api/v1/products/**"
+                    "/api/v1/products/**",
+                    "/api/v1/search",
+                    "/api/v1/search/**",
+                    "/api/v1/discovery",
+                    "/api/v1/discovery/**"
                 ).permitAll()
+
+                // Public Payment Webhook Endpoints
+                .requestMatchers("/api/v1/payments/webhooks/**").permitAll()
+
+                // Public AI Endpoints (Recommendations, Review Summary, Guest Chat)
+                .requestMatchers("/api/v1/public/ai/**").permitAll()
+
+                // Public Analytics Event Tracking
+                .requestMatchers("/api/v1/public/analytics/**").permitAll()
+
+                // Public Shipping & Tracking Endpoints
+                .requestMatchers(HttpMethod.GET, "/api/v1/shipments/track/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/shipments/rate-quote").permitAll()
+
+                // Customer Payment endpoints
+                .requestMatchers("/api/v1/payments/**").hasAnyAuthority(
+                    "PAYMENT_CREATE", "PAYMENT_READ",
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+
+                // Customer endpoints (Profile, Address, Wishlist, Reviews)
+                .requestMatchers("/api/v1/customer/**").hasAnyAuthority(
+                    "CUSTOMER_PROFILE_READ", "CUSTOMER_PROFILE_UPDATE",
+                    "WISHLIST_READ", "WISHLIST_UPDATE",
+                    "REVIEW_CREATE", "REVIEW_READ", "REVIEW_UPDATE", "REVIEW_DELETE",
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+
+                // Cart & Checkout endpoints
+                .requestMatchers("/api/v1/cart/**", "/api/v1/checkout/**").hasAnyAuthority(
+                    "CART_READ", "CART_UPDATE",
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+
+                // Customer Order endpoints
+                .requestMatchers("/api/v1/orders/**").hasAnyAuthority(
+                    "ORDER_CREATE", "ORDER_READ", "ORDER_CANCEL",
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+
+                // Seller Order endpoints
+                .requestMatchers("/api/v1/seller/orders/**").hasAnyAuthority(
+                    "SELLER_ORDER_MANAGE",
+                    "ROLE_SELLER", "ROLE_ADMIN"
+                )
+
+                // Admin Order endpoints
+                .requestMatchers("/api/v1/admin/orders/**").hasAnyAuthority(
+                    "ADMIN_ORDER_MANAGE", "ROLE_ADMIN"
+                )
+
+                // Inventory endpoints
+                .requestMatchers("/api/v1/admin/inventory/**").hasAnyAuthority("INVENTORY_AUDIT", "INVENTORY_READ", "ROLE_ADMIN")
+                .requestMatchers("/api/v1/seller/inventory/**").hasAnyAuthority("INVENTORY_UPDATE", "INVENTORY_READ", "ROLE_SELLER")
+                .requestMatchers("/api/v1/internal/inventory/**").hasAnyAuthority("INVENTORY_AUDIT", "ROLE_ADMIN")
+
+                // Delivery partner onboarding (any authenticated user)
+                .requestMatchers(HttpMethod.POST, "/api/v1/delivery/onboard").authenticated()
+
+                // Delivery tracking (Customer, Delivery Partner, Admin)
+                .requestMatchers("/api/v1/delivery/tracking/**").hasAnyAuthority(
+                    "ORDER_READ", "ROLE_CUSTOMER", "ROLE_DELIVERY", "ROLE_ADMIN"
+                )
+
+                // Delivery partner operations
+                .requestMatchers("/api/v1/delivery/**").hasAnyAuthority("ROLE_DELIVERY", "ROLE_ADMIN")
+
+                // Admin Delivery endpoints
+                .requestMatchers("/api/v1/admin/delivery/**").hasAnyAuthority("ROLE_ADMIN")
+
+                // Shipping & Tracking endpoints (Customer, Seller, Admin)
+                .requestMatchers("/api/v1/customer/shipments/**").hasAnyAuthority(
+                    "ORDER_READ", "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/shipments/seller/**").hasAnyAuthority(
+                    "SELLER_ORDER_MANAGE", "ROLE_SELLER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/admin/shipments/**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/v1/shipments/**").hasAnyAuthority(
+                    "ORDER_READ", "SELLER_ORDER_MANAGE", "ROLE_CUSTOMER", "ROLE_SELLER", "ROLE_DELIVERY", "ROLE_ADMIN"
+                )
+
+                // Admin Payment & Refund endpoints
+                .requestMatchers("/api/v1/admin/payments/**", "/api/v1/admin/refunds/**").hasAnyAuthority(
+                    "PAYMENT_MANAGE", "REFUND_MANAGE", "ROLE_ADMIN"
+                )
+
+                // Seller Reviews
+                .requestMatchers("/api/v1/seller/reviews/**").hasAnyAuthority(
+                    "REVIEW_READ", "SELLER_REVIEW_REPLY", "ROLE_SELLER", "ROLE_ADMIN"
+                )
+
+                // Admin Reviews & Moderation
+                .requestMatchers("/api/v1/admin/reviews/**").hasAnyAuthority(
+                    "REVIEW_MODERATE", "REVIEW_READ", "ROLE_ADMIN"
+                )
+
+                // Notification Management (Phase 15A)
+                .requestMatchers("/api/v1/customer/notifications/**", "/api/v1/customer/notification-preferences/**").hasAnyAuthority(
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/seller/notifications/**", "/api/v1/seller/notification-preferences/**").hasAnyAuthority(
+                    "ROLE_SELLER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/admin/notifications/**").hasAnyAuthority(
+                    "ROLE_ADMIN"
+                )
+
+                // Customer Support & Ticket Management (Phase 15B)
+                .requestMatchers("/api/v1/customer/tickets/**").hasAnyAuthority(
+                    "ROLE_CUSTOMER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/seller/tickets/**", "/api/v1/seller/ai/**", "/api/v1/seller/analytics/**").hasAnyAuthority(
+                    "ROLE_SELLER", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/delivery/tickets/**").hasAnyAuthority(
+                    "ROLE_DELIVERY", "ROLE_ADMIN"
+                )
+                .requestMatchers("/api/v1/admin/support/**", "/api/v1/admin/ai/**", "/api/v1/admin/analytics/**").hasAnyAuthority(
+                    "ROLE_ADMIN"
+                )
 
                 // Administrative endpoints require administrative authority
                 .requestMatchers("/api/v1/admin/categories/**").hasAnyAuthority("CATEGORY_MANAGE", "ROLE_ADMIN")
                 .requestMatchers("/api/v1/admin/brands/**").hasAnyAuthority("BRAND_MANAGE", "ROLE_ADMIN")
                 .requestMatchers("/api/v1/admin/products/**").hasAnyAuthority("PRODUCT_MODERATE", "ROLE_ADMIN")
-                .requestMatchers("/api/v1/admin/**").hasAnyAuthority("SELLER_MANAGE", "CATEGORY_MANAGE", "BRAND_MANAGE", "PRODUCT_MODERATE", "ROLE_ADMIN")
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority("SELLER_MANAGE", "CATEGORY_MANAGE", "BRAND_MANAGE", "PRODUCT_MODERATE", "INVENTORY_AUDIT", "PAYMENT_MANAGE", "REFUND_MANAGE", "ROLE_ADMIN")
 
                 // All other application requests require authentication
                 .anyRequest().authenticated()
             )
 
-            // 6. Register JWT Authentication Filter before Spring's UsernamePasswordAuthenticationFilter
+            // 6. Register Rate Limiting Filter before LogoutFilter (executing after CORS, before JWT authentication)
+            .addFilterBefore(rateLimitingFilter, LogoutFilter.class)
+            // 7. Register JWT Authentication Filter before Spring's UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

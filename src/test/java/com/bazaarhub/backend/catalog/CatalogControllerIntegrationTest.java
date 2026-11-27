@@ -100,6 +100,23 @@ class CatalogControllerIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         // Clear previous state respecting FK dependencies
+        jdbcTemplate.execute("DELETE FROM delivery_tracking");
+        jdbcTemplate.execute("DELETE FROM delivery_assignments");
+        jdbcTemplate.execute("DELETE FROM shipments");
+        jdbcTemplate.execute("DELETE FROM delivery_boys");
+        jdbcTemplate.execute("DELETE FROM order_status_history");
+        jdbcTemplate.execute("DELETE FROM order_items");
+        jdbcTemplate.execute("DELETE FROM seller_orders");
+        jdbcTemplate.execute("DELETE FROM orders");
+        jdbcTemplate.execute("DELETE FROM cart_items");
+        jdbcTemplate.execute("DELETE FROM carts");
+        jdbcTemplate.execute("DELETE FROM wishlist_items");
+        jdbcTemplate.execute("DELETE FROM wishlists");
+        jdbcTemplate.execute("DELETE FROM addresses");
+        jdbcTemplate.execute("DELETE FROM customer_profiles");
+        jdbcTemplate.execute("DELETE FROM inventory_movements");
+        jdbcTemplate.execute("DELETE FROM stock_reservations");
+        jdbcTemplate.execute("DELETE FROM inventories");
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         brandRepository.deleteAll();

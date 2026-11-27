@@ -33,4 +33,10 @@ public interface SpringDataUserRepository extends JpaRepository<UserEntity, Long
     boolean existsByEmail(String email);
 
     boolean existsByPhone(String phone);
+
+    @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.createdAt BETWEEN :start AND :end")
+    long countUsersCreatedBetween(@Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
+
+    @Query("SELECT COUNT(DISTINCT u) FROM UserEntity u JOIN u.roles r WHERE r.name = :roleName")
+    long countUsersByRoleName(@Param("roleName") String roleName);
 }

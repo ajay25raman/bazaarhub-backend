@@ -228,16 +228,20 @@ public class ProductService {
         log.info("Archived product ID: {} by seller user ID: {}", productId, userId);
     }
 
-    public ProductEntity getProductAndValidateOwnership(Long productId, Long userId) {
+    public ProductEntity getProductAndValidateOwnership(Long productId, Long userId, boolean isAdmin) {
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        if (product.getSeller() == null || product.getSeller().getUser() == null ||
-                !product.getSeller().getUser().getId().equals(userId)) {
+        if (!isAdmin && (product.getSeller() == null || product.getSeller().getUser() == null ||
+                !product.getSeller().getUser().getId().equals(userId))) {
             throw new UnauthorizedProductAccessException("You do not have permission to manage product ID: " + productId);
         }
 
         return product;
+    }
+
+    public ProductEntity getProductAndValidateOwnership(Long productId, Long userId) {
+        return getProductAndValidateOwnership(productId, userId, false);
     }
 
     private SellerEntity resolveApprovedSeller(Long userId) {

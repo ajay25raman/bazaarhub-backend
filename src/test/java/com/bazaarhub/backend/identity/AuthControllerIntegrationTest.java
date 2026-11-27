@@ -61,8 +61,32 @@ class AuthControllerIntegrationTest {
     @Autowired(required = false)
     private com.bazaarhub.backend.catalog.infrastructure.persistence.repository.SpringDataBrandRepository brandRepository;
 
+    @Autowired(required = false)
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     void cleanUp() {
+        if (jdbcTemplate != null) {
+            jdbcTemplate.execute("DELETE FROM delivery_tracking");
+            jdbcTemplate.execute("DELETE FROM delivery_assignments");
+            jdbcTemplate.execute("DELETE FROM shipments");
+            jdbcTemplate.execute("DELETE FROM delivery_boys");
+            jdbcTemplate.execute("DELETE FROM order_status_history");
+            jdbcTemplate.execute("DELETE FROM order_items");
+            jdbcTemplate.execute("DELETE FROM seller_orders");
+            jdbcTemplate.execute("DELETE FROM orders");
+            jdbcTemplate.execute("DELETE FROM cart_items");
+            jdbcTemplate.execute("DELETE FROM carts");
+            jdbcTemplate.execute("DELETE FROM wishlist_items");
+            jdbcTemplate.execute("DELETE FROM wishlists");
+            jdbcTemplate.execute("DELETE FROM addresses");
+            jdbcTemplate.execute("DELETE FROM customer_profiles");
+            jdbcTemplate.execute("DELETE FROM inventory_movements");
+            jdbcTemplate.execute("DELETE FROM stock_reservations");
+            jdbcTemplate.execute("DELETE FROM inventories");
+            jdbcTemplate.execute("DELETE FROM product_variants");
+            jdbcTemplate.execute("DELETE FROM products");
+        }
         if (categoryRepository != null) categoryRepository.deleteAll();
         if (brandRepository != null) brandRepository.deleteAll();
         if (bankAccountRepository != null) bankAccountRepository.deleteAll();

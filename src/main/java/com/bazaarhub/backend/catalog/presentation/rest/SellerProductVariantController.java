@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("/api/v1/seller/products/{productId}/variants")
 @Tag(name = "Seller Product Variants", description = "Endpoints for managing product SKU variants, pricing, attributes, and barcodes")
 @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
-@PreAuthorize("hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER')")
+@PreAuthorize("hasAnyAuthority('PRODUCT_UPDATE', 'ROLE_SELLER', 'ROLE_ADMIN')")
 public class SellerProductVariantController {
 
     private final ProductVariantService variantService;
@@ -57,10 +57,17 @@ public class SellerProductVariantController {
     @GetMapping
     @Operation(summary = "List product variants", description = "Retrieves all SKU variants for a product.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Variants retrieved successfully")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Variants retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Not product owner", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
     })
-    public ResponseEntity<ApiResponse<List<ProductVariantResponse>>> getVariants(@PathVariable Long productId) {
-        List<ProductVariantResponse> variants = variantService.getVariants(productId);
+    public ResponseEntity<ApiResponse<List<ProductVariantResponse>>> getVariants(
+            @PathVariable Long productId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
+        boolean isAdmin = principal != null && principal.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        Long userId = principal != null ? principal.getId() : null;
+        List<ProductVariantResponse> variants = variantService.getVariants(userId, productId, isAdmin);
         return ResponseEntity.ok(ApiResponse.ok(variants));
     }
 
@@ -68,12 +75,17 @@ public class SellerProductVariantController {
     @Operation(summary = "Get variant by ID", description = "Retrieves details of a specific SKU variant.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Variant retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - Not product owner", content = @Content),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Variant not found", content = @Content)
     })
     public ResponseEntity<ApiResponse<ProductVariantResponse>> getVariant(
             @PathVariable Long productId,
-            @PathVariable Long variantId) {
-        ProductVariantResponse response = variantService.getVariant(productId, variantId);
+            @PathVariable Long variantId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal) {
+        boolean isAdmin = principal != null && principal.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        Long userId = principal != null ? principal.getId() : null;
+        ProductVariantResponse response = variantService.getVariant(userId, productId, variantId, isAdmin);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 

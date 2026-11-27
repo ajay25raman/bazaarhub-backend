@@ -33,15 +33,26 @@ public class ProductVariantService {
     private final ProductService productService;
     private final SpringDataUserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final com.bazaarhub.backend.inventory.application.service.InventoryService inventoryService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public ProductVariantService(SpringDataProductVariantRepository variantRepository,
+                                 ProductService productService,
+                                 SpringDataUserRepository userRepository,
+                                 ObjectMapper objectMapper,
+                                 com.bazaarhub.backend.inventory.application.service.InventoryService inventoryService) {
+        this.variantRepository = variantRepository;
+        this.productService = productService;
+        this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
+        this.inventoryService = inventoryService;
+    }
 
     public ProductVariantService(SpringDataProductVariantRepository variantRepository,
                                  ProductService productService,
                                  SpringDataUserRepository userRepository,
                                  ObjectMapper objectMapper) {
-        this.variantRepository = variantRepository;
-        this.productService = productService;
-        this.userRepository = userRepository;
-        this.objectMapper = objectMapper;
+        this(variantRepository, productService, userRepository, objectMapper, null);
     }
 
     @Transactional
@@ -79,6 +90,9 @@ public class ProductVariantService {
                 .build();
 
         ProductVariantEntity saved = variantRepository.save(variant);
+        if (inventoryService != null) {
+            inventoryService.initializeInventoryForVariant(saved, user);
+        }
         log.info("Created variant ID: {} with SKU: '{}' for product ID: {}", saved.getId(), cleanSku, productId);
         return ProductMapper.toVariantResponse(saved);
     }
@@ -121,11 +135,28 @@ public class ProductVariantService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductVariantResponse> getVariants(Long userId, Long productId, boolean isAdmin) {
+        productService.getProductAndValidateOwnership(productId, userId, isAdmin);
+        return variantRepository.findByProductId(productId)
+                .stream()
+                .map(ProductMapper::toVariantResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductVariantResponse> getVariants(Long productId) {
         return variantRepository.findByProductId(productId)
                 .stream()
                 .map(ProductMapper::toVariantResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductVariantResponse getVariant(Long userId, Long productId, Long variantId, boolean isAdmin) {
+        productService.getProductAndValidateOwnership(productId, userId, isAdmin);
+        ProductVariantEntity variant = variantRepository.findByIdAndProductId(variantId, productId)
+                .orElseThrow(() -> new ProductVariantNotFoundException("Variant ID " + variantId + " not found on product ID " + productId));
+        return ProductMapper.toVariantResponse(variant);
     }
 
     @Transactional(readOnly = true)
@@ -156,6 +187,10 @@ public class ProductVariantService {
 
         ProductVariantEntity variant = variantRepository.findByIdAndProductId(variantId, productId)
                 .orElseThrow(() -> new ProductVariantNotFoundException("Variant ID " + variantId + " not found on product ID " + productId));
+
+        if (inventoryService != null) {
+            inventoryService.deleteInventoryForVariant(variantId);
+        }
 
         variantRepository.delete(variant);
         log.info("Deleted variant ID: {} from product ID: {}", variantId, productId);

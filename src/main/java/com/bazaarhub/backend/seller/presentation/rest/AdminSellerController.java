@@ -111,7 +111,7 @@ public class AdminSellerController {
     public ResponseEntity<ApiResponse<SellerResponse>> suspendSeller(
             @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long sellerId,
-            @RequestBody(required = false) AdminActionRequest request) {
+            @Valid @RequestBody(required = false) AdminActionRequest request) {
         SellerResponse response = adminSellerService.suspendSeller(principal.getId(), sellerId, request);
         return ResponseEntity.ok(ApiResponse.ok("Seller suspended successfully", response));
     }
