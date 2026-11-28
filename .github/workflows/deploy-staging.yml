@@ -94,3 +94,50 @@ jobs:
 
             # Securely authenticate using read token
             printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            unset GHCR_TOKEN
+
+            # Track previous image for rollback before pulling
+            if [[ -f .current_image ]]; then
+              cp .current_image .previous_image
+            fi
+
+            # Pull image and logout immediately
+            docker pull "${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+            docker logout ghcr.io || true
+
+            # Deploy with Docker Compose
+            export IMAGE_NAME="${IMAGE_REPOSITORY}"
+            export IMAGE_TAG="${IMAGE_TAG}"
+            export STAGING_APP_PORT="${STAGING_APP_PORT}"
+
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans
+
+            # Health verification
+            export HEALTH_URL="http://127.0.0.1:${STAGING_APP_PORT}/actuator/health"
+            export MAX_ATTEMPTS=96
+            export SLEEP_SECONDS=5
+
+            if ! ./health-check.sh "${HEALTH_URL}"; then
+              docker compose -f docker-compose.staging.yml ps
+              if [[ -s .previous_image ]]; then
+                ./rollback.sh staging
+              else
+                echo "Health check failed and no previous image is available for rollback." >&2
+              fi
+              exit 1
+            fi
+
+            echo "${IMAGE_TAG}" > .current_image
+            echo "Deployment to Staging verified successfully."
+
+      - name: Verify Public HTTPS API
+        env:
+          URL: https://bazaarhub.edugaondev.com/api/v1/categories
+        run: |
+          set -euo pipefail
+          status=$(curl --silent --show-error --max-time 15 \
+            --output /dev/null --write-out '%{http_code}' "${URL}")
+          if [[ "${status}" != "200" ]]; then
+            echo "Expected HTTP 200 from ${URL}, got ${status}." >&2
+            exit 1
+          fi
