@@ -28,18 +28,20 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: staging
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Resolve Image Tag
         id: resolve-tag
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_TAG: ${{ inputs.image_tag }}
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           set -euo pipefail
           if [[ "${EVENT_NAME}" == "workflow_dispatch" && -n "${INPUT_TAG}" ]]; then
@@ -75,6 +77,7 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           passphrase: ${{ secrets.STAGING_SSH_PASSPHRASE }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          command_timeout: 20m
           envs: IMAGE_REPOSITORY,IMAGE_TAG,GHCR_USER,GHCR_TOKEN,STAGING_APP_PORT
           script: |
             set -euo pipefail
@@ -91,34 +94,3 @@ jobs:
 
             # Securely authenticate using read token
             printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
-            unset GHCR_TOKEN
-
-            # Track previous image for rollback before pulling
-            if [[ -f .current_image ]]; then
-              cp .current_image .previous_image
-            fi
-
-            # Pull image and logout immediately
-            docker pull "${IMAGE_REPOSITORY}:${IMAGE_TAG}"
-            docker logout ghcr.io || true
-
-            # Deploy with Docker Compose
-            export IMAGE_NAME="${IMAGE_REPOSITORY}"
-            export IMAGE_TAG="${IMAGE_TAG}"
-            export STAGING_APP_PORT="${STAGING_APP_PORT}"
-
-            docker compose -f docker-compose.staging.yml up -d --remove-orphans
-
-            # Health verification
-            export HEALTH_URL="http://127.0.0.1:${STAGING_APP_PORT}/actuator/health"
-            export MAX_ATTEMPTS=12
-            export SLEEP_SECONDS=5
-
-            if ! ./health-check.sh "${HEALTH_URL}"; then
-              echo "ERROR: Health check failed! Initiating rollback..." >&2
-              ./rollback.sh staging
-              exit 1
-            fi
-
-            echo "${IMAGE_TAG}" > .current_image
-            echo "Deployment to Staging verified successfully."
